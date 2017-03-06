@@ -1,0 +1,311 @@
+ScreenManagement:
+    ## TODO:  add transition screens
+    ##transition: FadeTransition
+    LoginScreen:
+    LoadingPage:
+    LandingPage:
+    ReadPlan:
+    EditPlan:
+
+<LoginScreen>:
+    ## TODO:  add logo to bottom of screen
+    name: 'login'
+    title: 'Login'
+    FloatLayout:
+        size_hint: 1,1
+        Label:
+            text: 'User Name'
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width - 5 - 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width , 'top': (self.parent.height + 3*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+        TextInput:
+            id: username
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 3*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+            multiline: False
+        Label:
+            text: 'Password'
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width - 5 - 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 2*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+        TextInput:
+            id: password
+            password: True
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 2*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+            multiline: False
+        Button:
+            text: 'Login'
+            size_hint: 0.5,0.1
+            pos_hint: {'center_x': 0.5 , 'top': (self.parent.height + 1*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+            on_press: root.logInTask( username.text , password.text )
+        ## TODO: add guest access
+        ## Button:
+        ##     text: 'Guest'
+        ##     size_hint: 0.25,0.1
+        ##     pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 1*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+        ##     on_press: root.guestAuth( username.text , password.text )
+
+
+## <LoadingPage>:
+##     name: 'loading_page'
+##    
+##     LabelB:
+##         id: loading_page_logs
+##         text: ''
+##         bcolor: 0,0,0,0.5
+##         text_size: self.size
+##         size_hint: (1,1)
+##
+##     Label:
+##         text: 'Loading....'
+##         font_size: 50
+
+<LandingPage>:
+    name: 'landing_page'
+
+    BoxLayout:
+        size_hint: 1, 1
+        orientation: 'horizontal'
+
+        BoxLayout:
+            size_hint: 0.9, 1
+            orientation: 'horizontal'
+    
+            ScrollView:
+                
+                GridLayout:
+                    id:  level_1
+                    cols: 1
+                    padding: 10
+                    spacing: 10
+                    size_hint: 1, None
+                    height: self.minimum_height
+    
+            ScrollView:
+                
+                GridLayout:
+                    id:  level_2
+                    cols: 1
+                    padding: 10
+                    spacing: 10
+                    size_hint: 1, None
+                    height: self.minimum_height
+                                
+            ScrollView:
+                
+                GridLayout:
+                    id:  level_3
+                    cols: 1
+                    padding: 10
+                    spacing: 10
+                    size_hint: 1, None
+                    height: self.minimum_height
+                    
+        FloatLayout:
+            size_hint: 0.1,1
+            
+            Button:
+                ## TODO:  find icon set
+                id: 'home_button'
+                text: 'home'
+                size_hint: 0.75,None
+                height: self.width
+                pos_hint: {'center_x': 0.5, 'top': (self.parent.height-0*(self.parent.width*0.75)-(self.parent.width*0.25)/2)/self.parent.height }
+                on_release: app.root.screens[ 3 ].readFromHomeButton()
+
+            ## Button:
+            ##     id: 'edit_plan_button'
+            ##     text: 'edit'
+            ##     disabled: True
+            ##     size_hint: 0.75,None
+            ##     height: self.width
+            ##     pos_hint: {'center_x': 0.5, 'top': (self.parent.height-1*(self.parent.width*0.875)-(self.parent.width*0.25)/2)/self.parent.height }
+
+            Button:
+                id: 'autofinger_list_button'
+                text: 'fi'
+                size_hint: 0.75,None
+                height: self.width
+                pos_hint: {'center_x': 0.5, 'top': (self.parent.height-1*(self.parent.width*0.875)-(self.parent.width*0.25)/2)/self.parent.height }
+                on_release: app.root.current = 'landing_page'
+
+            ## Button:
+            ##     id: 'settings_button'
+            ##     text: 'settings'
+            ##     disabled: True
+            ##     size_hint: 0.75,None
+            ##     height: self.width
+            ##     pos_hint: {'center_x': 0.5, 'top': (2*(self.parent.width*0.95)-(self.parent.width*0.25)/2)/self.parent.height }
+            ##     on_release: app.root.current = 'loading_page'
+
+            ## Button:
+            ##     ## TODO:  add logout to API?
+            ##     id: 'logout_button'
+            ##     text: 'logout'
+            ##     disabled: True
+            ##     size_hint: 0.75,None
+            ##     height: self.width
+            ##     pos_hint: {'center_x': 0.5, 'top': (1*(self.parent.width)-(self.parent.width*0.25)/2)/self.parent.height }
+            ##     on_release: app.root.current = 'loading_page'
+
+
+<ReadPlan>:
+    name: 'read_plan'
+
+    BoxLayout:
+        size_hint: 1, 1
+        orientation: 'horizontal'
+
+        ScrollView:
+    
+            GridLayout:
+                cols: 1
+                padding: 10
+                spacing: 10
+                size_hint: 1, None
+                height: self.minimum_height
+    
+                GridLayout:
+                    size_hint: (1,None)
+                    height: 3 * root.height * 0.08 + 2 * 20
+                    cols: 4
+                    padding: 10
+                    spacing: 10
+                    Label:
+                    Label:
+                    TextInput:
+                        id: finger
+                        multiline: False
+                        size_hint_y: None
+                        height: root.height * 0.08
+                    Button:
+                        text: 'Read'
+                        size_hint_y: None
+                        height: root.height * 0.08
+                        on_release: app.root.screens[ 3 ].readFromFingerButton()
+                    Label:
+                        text: 'Username'
+                        size_hint_y: None
+                        height: root.height * 0.08
+                    Label:
+                        id: username
+                    Label:
+                        text: 'Name'
+                        size_hint_y: None
+                        height: root.height * 0.08
+                    Label:
+                        id: psuedo
+                    Label:
+                        text: 'Last Updated:'
+                        size_hint_y: None
+                        height: root.height * 0.08
+                    Label:
+                        id: last_updated
+                    Label:
+                        text: 'Last Login:'
+                        size_hint_y: None
+                        height: root.height * 0.08
+                    Label:
+                        id: last_login
+                    
+                ## LabelB:
+                ##     id: header
+                ##     text_size: self.size
+                ##     size_hint: (1,None)
+                ##     height: self.texture_size[1]
+                ##     bcolor: 0,0,1,1
+                ##     halign: 'center'
+                ##     valign: 'middle'
+                ##     markup: True
+                ##     text: '...header...'
+    
+                Label:
+                    id: plan
+                    text_size: self.size
+                    size_hint: (1,None)
+                    height: 1600
+                    color: 1,1,1,1
+                    ##bcolor: 0,0,0,1
+                    halign: 'left'
+                    valign: 'top'
+                    markup: True
+                    text: 'Hello &bl;[ref=world][color=0000ff]World[/color][/ref]&br;'
+                    ## TODO:  add on_long_press send to clipboard
+                    on_ref_press: app.root.screens[ 3 ].readFromRef( args[ 1 ] )
+    
+                ## LabelB:
+                ##     id: footer
+                ##     text_size: self.size
+                ##     ##height: self.texture_size[1]
+                ##     size_hint: (1,None)
+                ##     height: self.texture_size[1]
+                ##     bcolor: 0,1,0,1
+                ##     halign: 'center'
+                ##     valign: 'middle'
+                ##     markup: True
+                ##     text: '...footer...'
+
+        FloatLayout:
+            size_hint: 0.1,1
+            
+            Button:
+                id: 'home_button'
+                text: 'home'
+                size_hint: 0.75,None
+                height: self.width
+                pos_hint: {'center_x': 0.5, 'top': (self.parent.height-0*(self.parent.width*0.75)-(self.parent.width*0.25)/2)/self.parent.height }
+                on_release: root.readFromHomeButton()
+
+            ## Button:
+            ##     id: 'edit_plan_button'
+            ##     text: 'edit'
+            ##     disabled: True
+            ##     size_hint: 0.75,None
+            ##     height: self.width
+            ##     pos_hint: {'center_x': 0.5, 'top': (self.parent.height-1*(self.parent.width*0.875)-(self.parent.width*0.25)/2)/self.parent.height }
+
+            Button:
+                id: 'autofinger_list_button'
+                text: 'fi'
+                size_hint: 0.75,None
+                height: self.width
+                pos_hint: {'center_x': 0.5, 'top': (self.parent.height-1*(self.parent.width*0.875)-(self.parent.width*0.25)/2)/self.parent.height }
+                on_release: app.root.current = 'landing_page'
+
+            ## Button:
+            ##     id: 'settings_button'
+            ##     text: 'settings'
+            ##     disabled: True
+            ##     size_hint: 0.75,None
+            ##     height: self.width
+            ##     pos_hint: {'center_x': 0.5, 'top': (2*(self.parent.width*0.95)-(self.parent.width*0.25)/2)/self.parent.height }
+            ##     color:  0,0,1,0.5
+            ##     on_release: app.root.current = 'loading_page'
+
+            ## Button:
+            ##     id: 'logout_button'
+            ##     text: 'logout'
+            ##     disabled: True
+            ##     size_hint: 0.75,None
+            ##     height: self.width
+            ##     pos_hint: {'center_x': 0.5, 'top': (1*(self.parent.width*1)-(self.parent.width*0.25)/2)/self.parent.height }
+
+<EditPlan>:
+    name: 'edit_plan'
+    
+    Button:
+        on_release: app.root.current = 'read_plan'
+        text: 'Edit Plan'
+        font_size: 50
+
+<PopupBox>:
+    pop_up_text: _pop_up_text
+    size_hint: .5, .5
+    auto_dismiss: True
+    title: 'Status'
+
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            id: _pop_up_text
+            text: ''
+
