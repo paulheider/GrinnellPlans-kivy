@@ -1,0 +1,7 @@
+inspect
+jnius
+kivy
+mock
+pytest
+requests
+webbrowser
