@@ -1,9 +1,13 @@
 language: python
 python:
   - "2.7"
-# command to install dependencies
-install: "pip install -r requirements.txt"
-# command to run tests
-script: python -m pytest tests
-#script: nose
-#script: mock
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y cython
+
+install:
+  - pip install -r requirements.txt
+
+script:
+  - python -m pytest tests
