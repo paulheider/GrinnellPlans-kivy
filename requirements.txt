@@ -1,4 +1,3 @@
-inspect
 jnius
 kivy
 mock
