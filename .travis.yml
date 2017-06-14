@@ -8,17 +8,14 @@ sudo: required
 dist: trusty
 
 before_install:
-  ##- yes | sudo add-apt-repository ppa:mc3man/trusty-media
-  ##- sudo apt-get update
-  ##- sudo apt-get install build-essential ffmpeg \
-  ##  libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libportmidi-dev \
-  ##  libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+  - sudo apt-get update -qq
   ## https://kivy.org/docs/installation/installation.html#development-version
-  - sudo apt-get install python-gst0.10 gstreamer0.10-plugins-good python-dev python-enchant build-essential libgl1-mesa-dev libgles2-mesa-dev zlib1g-dev
-  ##- sudo apt-get install libsdl2-ttf-dev libmtdev1
+  - sudo apt-get install -qq gstreamer0.10-plugins-good libgl1-mesa-dev libgles2-mesa-dev zlib1g-dev
+  - sudo apt-get build-dep -qq python-pygame python-gst0.10 python-dev python-enchant
+  - sudo apt-get install -qq build-essential python-pygame python-gst0.10 python-dev python-enchant
   ## Kivy Package Dependencies
   ##   https://kivy.org/docs/installation/installation.html#ubuntu
-  - pip install --upgrade pip wheel setuptools pygame pyopengl pyenchant
+  - pip install --upgrade pip wheel setuptools pyopengl pyenchant
   - pip install Cython
   - pip install --upgrade Cython==0.25.2
   - pip install -r ./requirements.txt
