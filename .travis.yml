@@ -1,28 +1,19 @@
-# Check on http://lint.travis-ci.org/ after modifying it!
-# Original variants:
-#   https://gist.github.com/dan-blanchard/7045057
-#   https://github.com/Jorge-C/ordination/blob/master/.travis.yml
+# Original variant:
+#   https://github.com/kivy/kivent/blob/2.2-release/.travis.yml
 language: python
 python:
   - "2.7"
 
-# Setup anaconda
-before_install:
-  - wget http://repo.continuum.io/miniconda/Miniconda-2.2.2-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/anaconda/bin:$PATH
-  # Update conda itself
-  - conda update --yes conda
-  # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
-  - sudo rm -rf /dev/shm
-  - sudo ln -s /run/shm /dev/shm
+sudo: required
+dist: trusty
 
-# Install packages
-install:
-  - conda create --yes -n env_name python=$TRAVIS_PYTHON_VERSION pip numpy matplotlib nose
-  - source activate env_name
-  ##- pipe install pytest  # not yet available for py3 in anaconda
+before_install:
+  ##- yes | sudo add-apt-repository ppa:mc3man/trusty-media
+  - sudo apt-get update
+  ##- sudo apt-get install build-essential ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+  - pip install -U pip
+  - pip install Cython
+  - pip install -r ./requirements.txt
 
 # Run test
 script:

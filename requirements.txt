@@ -1,1 +1,2 @@
-kivy
+Cython==0.24.1
+Kivy==1.9.1
