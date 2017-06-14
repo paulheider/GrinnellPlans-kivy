@@ -2,27 +2,24 @@
 #   https://github.com/kivy/kivent/blob/2.2-release/.travis.yml
 language: python
 python:
-  - "2.7"
+  - 2.7
+  - 3.4
+  - 3.5
 
 sudo: required
 dist: trusty
 
 before_install:
-  - sudo apt-get update -qq
-  ## https://kivy.org/docs/installation/installation.html#development-version
-  - sudo apt-get install -qq gstreamer0.10-plugins-good libgl1-mesa-dev libgles2-mesa-dev zlib1g-dev
-  - sudo apt-get build-dep -qq python-pygame python-gst0.10 python-dev python-enchant python-opengl
-  - sudo apt-get install -qq build-essential python-setuptools python-pygame python-gst0.10 python-dev python-enchant python-opengl
-  ## Kivy Package Dependencies
-  ##   https://kivy.org/docs/installation/installation.html#ubuntu
-  - pip install --upgrade pip wheel
-  - pip install Cython
-  - pip install --upgrade Cython==0.25.2
-  - pip install -r ./requirements.txt
+- yes | sudo add-apt-repository ppa:mc3man/trusty-media
+- sudo apt-get update
+- sudo apt-get install build-essential ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+- pip install -U pip
+- pip install Cython
+- pip install -r ./requirements.txt
+
+install:
+- scripts/install_all.sh
 
 # Run test
-script:
-  - python -m pytest tests
-
-virtualenv:
-    system_site_packages: true
+#script:
+#  - python -m pytest tests
