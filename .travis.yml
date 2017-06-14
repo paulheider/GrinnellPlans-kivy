@@ -23,3 +23,6 @@ before_install:
 # Run test
 script:
   - python -m pytest tests
+
+virtualenv:
+    system_site_packages: true
