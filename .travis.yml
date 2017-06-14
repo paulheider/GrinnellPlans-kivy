@@ -17,4 +17,5 @@ before_install:
 
 # Run test
 script:
+  - python -m pytest tests/test_edit_plan.py
   - python -m pytest tests/test_simple.py
