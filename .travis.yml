@@ -8,10 +8,15 @@ sudo: required
 dist: trusty
 
 before_install:
-  - yes | sudo add-apt-repository ppa:mc3man/trusty-media
-  - sudo apt-get update
-  - sudo apt-get install build-essential ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
-  - pip install -U pip
+  ##- yes | sudo add-apt-repository ppa:mc3man/trusty-media
+  ##- sudo apt-get update
+  ##- sudo apt-get install build-essential ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+  ##- sudo apt-get install libsdl2-ttf-dev libmtdev1
+  ## Kivy Package Dependencies
+  ##   https://kivy.org/docs/installation/installation-windows.html#installation
+  - pip install --upgrade pip wheel setuptools
+  - pip install docutils pygments pypiwin32 kivy.deps.sdl2 kivy.deps.glew
+  - pip install kivy.deps.gstreamer
   - pip install Cython
   - pip install -r ./requirements.txt
 
