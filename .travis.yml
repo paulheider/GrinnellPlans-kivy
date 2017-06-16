@@ -5,7 +5,7 @@ sudo: required
 before_install:
     - sudo add-apt-repository -y ppa:kivy-team/kivy
     - sudo apt-get update
-    - sudo apt-get install -y build-essential git python-dev ffmpeg libsdl2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
+    - sudo apt-get install -y build-essential git python-dev ffmpeg libsdl-dev libsdl-image-dev libsdl-mixer-dev libsdl-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
     - sudo apt-get install python-kivy python-pygame
 install:
     - pip install --upgrade pip
