@@ -8,7 +8,8 @@ before_install:
     - sudo add-apt-repository -y ppa:mc3man/trusty-media
     - sudo apt-get update
     - sudo apt-get install -y build-essential git python-dev ffmpeg libsdl1.2-dev libsdl2-image-dev libsdl2-mixer-dev libsdl2-ttf-dev libportmidi-dev libswscale-dev libavformat-dev libavcodec-dev zlib1g-dev
-    - sudo apt-get install python-kivy python-pygame
+    - sudo apt-get install -y mtdev-devel
+    - sudo apt-get install -y python-kivy python-pygame
 install:
     - pip install --upgrade pip
     - pip install setuptools
