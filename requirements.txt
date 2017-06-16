@@ -1,1 +1,2 @@
+pygame
 Kivy==1.9.1
