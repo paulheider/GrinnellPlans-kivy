@@ -14,7 +14,7 @@ pip install -r tests/requirements.txt
 pip install -r requirements.txt
 
 # runs tests
-python -m pytest tests
+python -m kivyunittest --folder tests
 #isort --check-only --recursive ./
 #flake8 ./
 #coverage run --source=./ -m unittest discover --start-directory=./
