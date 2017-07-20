@@ -27,7 +27,7 @@ import webbrowser
 
 import kivy
 
-kivy.require('1.9.1')
+kivy.require('1.10.0')
 
 ## TODO:  integrate a config file
 ##from kivy.config import Config
