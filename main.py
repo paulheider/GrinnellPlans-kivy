@@ -27,7 +27,7 @@ import webbrowser
 
 import kivy
 
-kivy.require('1.10.0')
+kivy.require('1.9.0')
 
 ## TODO:  integrate a config file
 ##from kivy.config import Config
@@ -195,10 +195,32 @@ class LoginScreen( Screen ):
         self.pop_up.update_pop_up_text( message )
         self.pop_up.open()
 
-    def update_autofinger( self , json_list ):
-        ## TODO:  call this for every page read
+    def update_autofinger( self , json_list = None ):
+        ## Updating the autofinger list happens automatically by a new
+        ## api call unless you provide a json_list of the autofinger
+        ## level entries when calling this function.
+        if( json_list == None ):
+            try:
+                username = cookie_jar.get( 'user_name' )[ 'username' ]
+            except Exception as e:
+                st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
+                LLOOGG( 'Error:  Unable to extract username from cookie jar - {1}\n'.format( st , e ) )
+            try:
+                url = 'https://www.grinnellplans.com/api/1/index.php?task=autofingerlist'
+                response = session.post( url ,
+                                         data = { 'username': username } )
+                json_response = None
+                if( response.status_code == 200 ):
+                    json_response = response.json()
+                    response.close()
+                    json_list = json_response[ 'autofingerList' ]
+            except Exception as e:
+                st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
+                LLOOGG( 'Error:  {1}\n'.format( st , e ) )
+        ## Clear out the old global variable for update
         global autofinger_list
         autofinger_list = {}
+        ## Loop through the autofinger levels to update each level in turn
         for level in json_list:
             level_number = level[ u'level' ]
             ##print( 'Level {}'.format( level_number ) )
@@ -247,9 +269,6 @@ class LoginScreen( Screen ):
                     json_response = response.json()
                     print( '{} - {}'.format( this_line() , json_response ) )
                     self.update_autofinger( json_response[ 'autofingerList' ] )
-                    ##with open( '/tmp/autofinger_list.txt' , 'w' ) as f:
-                    ##    f.write( json_response[ 'autofingerList' ] )
-                    ##f.closed
                     response.close()
                     LLOOGG( 'Logged in.  Checking plan...' )
                     ##plans_app.current = 'landing_page'
@@ -280,7 +299,6 @@ class LandingPage( Screen ):
     ## TODO:  random buttons for each person on your autoread list
     ## https://kivy.org/docs/api-kivy.uix.floatlayout.html#module-kivy.uix.floatlayout
     ## TODO:  add refresh button or pull at top to refresh
-    ## TODO:  on_enter pull new autofinger_list
 
     def show_popup( self , message ):
         if( message == None ):
@@ -291,22 +309,13 @@ class LandingPage( Screen ):
         self.pop_up.update_pop_up_text( message )
         self.pop_up.open()
     
-    
-    def on_enter( self ):
+
+    def load_autofinger_levels( self ):
         global autofinger_list
-        self.show_popup( 'Loading autofinger levels...' )
-        #print( '{} -> {}'.format( username , password ) )
-        ##print( 'Children:' )
-        # level_name = 'level_1'
-        # plans_app.screens[ 2 ].ids[ level_name ].bind( minimum_height = plans_app.screens[ 2 ].ids[ level_name ].setter( 'height' ) )
-        # for i in range(100):
-        #     btn = Button( text = str(i) ,
-        #                   size = ( plans_app.width / 3 , 40 ) ,
-        #                   size_hint_y = None )
-        #     plans_app.screens[ 2 ].ids[ level_name ].add_widget(btn)        
         button_width = 0.9 * plans_app.width / 3
         button_height = plans_app.height * 0.5
-        
+        self.show_popup( 'Loading autofinger levels...' )
+        ##
         for level_name in plans_app.screens[ 2 ].ids:
             level_matches = autofinger_level_re.findall( level_name )
             if( len( level_matches ) == 0 ):
@@ -334,7 +343,12 @@ class LandingPage( Screen ):
                     finger_btn.bind( on_press = plans_app.screens[ 3 ].readFromLevels )
                     plans_app.screens[ 2 ].ids[ level_name ].add_widget( finger_btn )
         self.pop_up.dismiss()
-    
+        
+        
+    def on_enter( self ):
+        plans_app.screens[ 0 ].update_autofinger()
+        self.load_autofinger_levels()
+        
 
     def __init__(self , **kwargs ):
         super(LandingPage, self).__init__(**kwargs)
@@ -359,7 +373,7 @@ class ReadPlan( Screen ):
         ##print( "{} - {}".format( this_line() , plan_body[ 0:250 ] ) )
         LLOOGG( "{} - Original length = {}".format( this_line() ,
         #                                               plans_app.screens[ 3 ].ids.plan.bcolor ,
-                                                       plans_app.screens[ 3 ].ids.plan.texture_size ) )
+                                                    plans_app.screens[ 3 ].ids.plan.texture_size ) )
         ## TODO:  Readjusting label size to match text size
         ##   - https://blog.kivy.org/2014/07/wrapping-text-in-kivys-label/
         #plans_app.screens[ 3 ].ids.plan.text = plan_body
@@ -484,12 +498,6 @@ class ReadPlan( Screen ):
                 plans_app.screens[ 3 ].ids.last_updated.text = last_updated
                 ##plans_app.screens[ 3 ].ids.plan.text = plan_body[ 0:250 ]##'asdf'
                 plans_app.screens[ 3 ].ids.plan.text = plan_body
-                ##plans_app.screens[ 3 ].ids.plan.text = 'Hello [ref=heider][color=0000ff]World[/color][/ref]'
-                ##plans_app.screens[ 3 ].ids.plan.width = plans_app.width
-                LLOOGG( "{} - {}h {}w".format( this_line() ,
-                                               plans_app.height ,
-                                               plans_app.width ) )
-                #print( '{}'.format( this_line() ) )
                 ## If we got here from clicking the read button, then empty out the data
                 plans_app.screens[ 3 ].ids.finger.text = ''
         except Exception as e:
