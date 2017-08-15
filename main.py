@@ -36,7 +36,10 @@ from kivy.logger import Logger
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.popup import Popup
+from kivy.uix.progressbar import ProgressBar
 from kivy.factory import Factory
+
+from kivy.clock import Clock
 
 from kivy.properties import ObjectProperty
 
@@ -179,21 +182,8 @@ def LLOOGG( message ):
     Logger.info( message )
 
 
-class PopupBox(Popup):
-    pop_up_text = ObjectProperty()
-    
-    def update_pop_up_text(self, p_message):
-        self.pop_up_text.text = p_message
-
-
 class LoginScreen( Screen ):
 
-    def show_popup( self , message ):
-        LLOOGG( "{} - {}".format( this_line() ,
-                                  message ) )
-        self.pop_up = Factory.PopupBox()
-        self.pop_up.update_pop_up_text( message )
-        self.pop_up.open()
 
     def update_autofinger( self , json_list = None ):
         ## Updating the autofinger list happens automatically by a new
@@ -238,7 +228,6 @@ class LoginScreen( Screen ):
     
     def logInTask( self , username , password ):
         global session
-        self.show_popup( 'Logging in...' )
         plans_app.current = 'landing_page'
         LLOOGG( "{} - {}h {}w".format( this_line() ,
                                        plans_app.height ,
@@ -272,8 +261,6 @@ class LoginScreen( Screen ):
                     response.close()
                     LLOOGG( 'Logged in.  Checking plan...' )
                     ##plans_app.current = 'landing_page'
-                    self.pop_up.dismiss()
-                    LLOOGG( "{} - popup dismissed".format( this_line() ) )
                 else:
                     LLOOGG( 'Failed to log in:  {}'.format( response.status_code ) )
         except Exception as e:
@@ -300,21 +287,13 @@ class LandingPage( Screen ):
     ## https://kivy.org/docs/api-kivy.uix.floatlayout.html#module-kivy.uix.floatlayout
     ## TODO:  add refresh button or pull at top to refresh
 
-    def show_popup( self , message ):
-        if( message == None ):
-            message = 'Waiting for PlanGodot'
-        LLOOGG( "{} - {}".format( this_line() ,
-                                  message ) )
-        self.pop_up = Factory.PopupBox()
-        self.pop_up.update_pop_up_text( message )
-        self.pop_up.open()
-    
+    progress_bar = ObjectProperty()
 
     def load_autofinger_levels( self ):
+        self.pop()
         global autofinger_list
         button_width = 0.9 * plans_app.width / 3
         button_height = plans_app.height * 0.5
-        self.show_popup( 'Loading autofinger levels...' )
         ##
         for level_name in plans_app.screens[ 2 ].ids:
             level_matches = autofinger_level_re.findall( level_name )
@@ -333,7 +312,9 @@ class LandingPage( Screen ):
             ## TODO:  is this line really necessary?
             plans_app.screens[ 2 ].ids[ level_name ].bind( minimum_height = plans_app.screens[ 2 ].ids[ level_name ].setter( 'height' ) )
             if( autofinger_list.has_key( level_name ) ):
-                for username in autofinger_list[ level_name ] :
+                usernames_this_level = autofinger_list[ level_name ]
+                level_progress_inc = len( usernames_this_level ) / 30
+                for username in usernames_this_level:
                     ##print( "\t\t{}".format( username ) )
                     finger_btn = Button( text = username ,
                                          size_x = button_width ,
@@ -342,29 +323,44 @@ class LandingPage( Screen ):
                     ##TODO:  bind readTask to this button
                     finger_btn.bind( on_press = plans_app.screens[ 3 ].readFromLevels )
                     plans_app.screens[ 2 ].ids[ level_name ].add_widget( finger_btn )
-        self.pop_up.dismiss()
+                    self.progress_bar.value += level_progress_inc
+            else:
+                self.progress_bar.value += 33
+        self.progress_bar.value = 100
         
         
     def on_enter( self ):
         plans_app.screens[ 0 ].update_autofinger()
         self.load_autofinger_levels()
-        
-
+    
+    
     def __init__(self , **kwargs ):
         super(LandingPage, self).__init__(**kwargs)
+        ## Pop-up + Progress Bar
+        ## - https://gist.github.com/jsidew/4959534#file-kivy_progressbar_example-py
+        self.progress_bar = ProgressBar()
+        self.popup = Popup(
+            title = 'Loading autofinger list...' ,
+            content = self.progress_bar ,
+            size_hint = ( 0.4 , 0.2 )
+        )
+        self.popup.bind(on_open=self.puopen)
+        
+    def pop( self ):
+        self.progress_bar.value = 1
+        self.popup.open()
+        
+    def next(self, dt):
+        if self.progress_bar.value >= 100:
+            self.popup.dismiss()
+            return False
+        
+    def puopen(self, instance):
+        Clock.schedule_interval(self.next, 1/25)
 
 
 class ReadPlan( Screen ):
     ## TODO:  add a button to flag plan for comment/later and see all flagged
-    def show_popup( self , message ):
-        if( message == None ):
-            message = 'Waiting for PlanGodot'
-        LLOOGG( "{} - {}".format( this_line() ,
-                                  message ) )
-        self.pop_up = Factory.PopupBox()
-        self.pop_up.update_pop_up_text( message )
-        self.pop_up.open()
-    
     
     def on_enter( self ):
         #with open( '/tmp/plan_body.html' , 'r' ) as f:
@@ -431,25 +427,19 @@ class ReadPlan( Screen ):
     def readFromHomeButton( self ):
         username = plans_app.screens[ 0 ].ids.username.text
         if( username != '' ):
-            self.show_popup( 'Loading plan...' )
             self.readTask( username )
-            self.pop_up.dismiss()
     
             
     def readFromFingerButton( self ):
         username = plans_app.screens[ 3 ].ids.finger.text
         if( username != '' ):
-            self.show_popup( 'Loading plan...' )
             self.readTask( username )
-            self.pop_up.dismiss()
 
     
     def readFromLevels( self , button_instance ):
         username = button_instance.text
         if( username != '' ):
-            self.show_popup( 'Loading plan...' )
             self.readTask( username )
-            self.pop_up.dismiss()
 
     
     def readFromRef( self , ref_string ):
@@ -460,9 +450,7 @@ class ReadPlan( Screen ):
         else:
             username = planlove_matches[ 0 ]
             LLOOGG( 'readFromRef:  {} - {} from {}'.format( this_line() , username , ref_string ) )
-            self.show_popup( 'Loading plan...' )
             self.readTask( username )
-            self.pop_up.dismiss()
     
     
     def readTask( self , username ):
@@ -518,7 +506,7 @@ class ScreenManagement( ScreenManager ):
 plans_app = Builder.load_file( "main.kv" )
 
 class GrinnellPlansApp(App):
-    
+
     def build(self):
         ## plans_app.screen_names[ 0 ]
         ##print( '{}'.format( plans_app.screens[ 0 ].ids.password.text ) )
@@ -533,7 +521,8 @@ class GrinnellPlansApp(App):
         ##plans_app.current = 'loading_page'
         ##plans_app.current = 'read_plan'
         return plans_app
-    
+
+
 if __name__ == '__main__':
     GrinnellPlansApp().run()
     

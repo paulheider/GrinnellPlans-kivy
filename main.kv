@@ -7,6 +7,7 @@ ScreenManagement:
     ReadPlan:
     EditPlan:
 
+
 <LoginScreen>:
     ## TODO:  add logo to bottom of screen
     name: 'login'
@@ -296,16 +297,4 @@ ScreenManagement:
         on_release: app.root.current = 'read_plan'
         text: 'Edit Plan'
         font_size: 50
-
-<PopupBox>:
-    pop_up_text: _pop_up_text
-    size_hint: .5, .5
-    auto_dismiss: True
-    title: 'Status'
-
-    BoxLayout:
-        orientation: "vertical"
-        Label:
-            id: _pop_up_text
-            text: ''
 
