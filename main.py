@@ -4,6 +4,8 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+import os
+
 ## Allow labels to have background colors
 #import LabelB
 
@@ -11,7 +13,7 @@ import inspect
 
 import time
 import datetime
-import requests
+import requests, requests.utils, pickle
 #import urllib
 #import base64
 #import urllib2
@@ -55,6 +57,16 @@ from kivy.utils import escape_markup
 
 from kivy.storage.jsonstore import JsonStore
 from kivy.storage.dictstore import DictStore
+
+from kivy.garden import iconfonts
+
+#### Generate a local fontd file:
+##   from https://github.com/kivy-garden/garden.iconfonts
+##iconfonts.create_fontdict_file( 'resources/font-awesome.css' ,
+##                                'resources/font-awesome.fontd' )
+iconfonts.register( 'default_font' ,
+                    'resources/fontawesome-webfont.ttf' ,
+                    'resources/font-awesome.fontd' )
 
 def this_line():
     callerframerecord = inspect.stack()[1]
@@ -225,6 +237,27 @@ class LoginScreen( Screen ):
     def guestAuth( self , username , password ):
         pass##print( '{} -> {}'.format( username , password ) )
 
+
+    def loadSavedSession( self ):
+        global session
+        if( os.path.exists( 'session.dat' ) ):
+            with open('session.dat') as fp:
+                tmp_cookies = requests.utils.cookiejar_from_dict( pickle.load( fp ) )
+                session = requests.Session()
+                session.cookies.update( tmp_cookies )
+            return True
+        return False
+
+    
+    def endSession( self ):
+        global session
+        session = None
+        os.remove( 'session.dat' )
+        if( cookie_jar.exists( 'user_name' ) ):
+            ## TODO:  make this a robust look-up rather than hard-coded index
+            plans_app.screens[ 0 ].ids.username.text = cookie_jar.get( 'user_name' )[ 'username' ]
+        plans_app.current = 'login'
+
     
     def logInTask( self , username , password ):
         global session
@@ -260,6 +293,9 @@ class LoginScreen( Screen ):
                     self.update_autofinger( json_response[ 'autofingerList' ] )
                     response.close()
                     LLOOGG( 'Logged in.  Checking plan...' )
+                    with open('session.dat', 'w') as fp:
+                        pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
+                                     fp )
                     ##plans_app.current = 'landing_page'
                 else:
                     LLOOGG( 'Failed to log in:  {}'.format( response.status_code ) )
@@ -506,17 +542,17 @@ class ScreenManagement( ScreenManager ):
 plans_app = Builder.load_file( "main.kv" )
 
 class GrinnellPlansApp(App):
-
+    __version__ = "17.51.2"
+    
     def build(self):
-        ## plans_app.screen_names[ 0 ]
-        ##print( '{}'.format( plans_app.screens[ 0 ].ids.password.text ) )
         print( 'Screens:  {}'.format( plans_app.screens ) )
-        if( cookie_jar.exists( 'user_name' ) ):
-            ##cookie_jar.exists( 'user_pass' ) ):
-            ## TODO:  make this a robust look-up rather than hard-coded index
-            plans_app.screens[ 0 ].ids.username.text = cookie_jar.get( 'user_name' )[ 'username' ]
-            ##plans_app.screens[ 0 ].ids.password.text = cookie_jar.get( 'user_pass' )[ 'passwd' ]
-        plans_app.current = 'login'
+        if( plans_app.screens[ 0 ].loadSavedSession() ):
+            plans_app.current = 'landing_page'
+        else:
+            if( cookie_jar.exists( 'user_name' ) ):
+                ## TODO:  make this a robust look-up rather than hard-coded index
+                plans_app.screens[ 0 ].ids.username.text = cookie_jar.get( 'user_name' )[ 'username' ]
+            plans_app.current = 'login'
         ##plans_app.current = 'landing_page'
         ##plans_app.current = 'loading_page'
         ##plans_app.current = 'read_plan'
