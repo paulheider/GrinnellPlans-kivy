@@ -1,3 +1,5 @@
+#: import icon kivy.garden.iconfonts.icon
+
 ScreenManagement:
     ## TODO:  add transition screens
     ##transition: FadeTransition
@@ -34,7 +36,8 @@ ScreenManagement:
             pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 2*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
             multiline: False
         Button:
-            text: 'Login'
+            markup: True
+            text: "{}".format( icon( 'fa-sign-in' ) )
             size_hint: 0.5,0.1
             pos_hint: {'center_x': 0.5 , 'top': (self.parent.height + 1*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
             on_press: root.logInTask( username.text , password.text )
@@ -107,7 +110,8 @@ ScreenManagement:
             Button:
                 ## TODO:  find icon set
                 id: 'home_button'
-                text: 'home'
+                markup: True
+                text: "{}".format( icon( 'fa-home' ) )
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-0*(self.parent.width*0.75)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -123,7 +127,8 @@ ScreenManagement:
 
             Button:
                 id: 'autofinger_list_button'
-                text: 'fi'
+                markup: True
+                text: "{}".format( icon( 'fa-list-ol' ) )
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-1*(self.parent.width*0.875)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -131,22 +136,24 @@ ScreenManagement:
 
             ## Button:
             ##     id: 'settings_button'
-            ##     text: 'settings'
+            ##     markup: True
+            ##     text: "{}".format( icon( 'fa-cog' ) )
             ##     disabled: True
             ##     size_hint: 0.75,None
             ##     height: self.width
             ##     pos_hint: {'center_x': 0.5, 'top': (2*(self.parent.width*0.95)-(self.parent.width*0.25)/2)/self.parent.height }
             ##     on_release: app.root.current = 'loading_page'
 
-            ## Button:
-            ##     ## TODO:  add logout to API?
-            ##     id: 'logout_button'
-            ##     text: 'logout'
-            ##     disabled: True
-            ##     size_hint: 0.75,None
-            ##     height: self.width
-            ##     pos_hint: {'center_x': 0.5, 'top': (1*(self.parent.width)-(self.parent.width*0.25)/2)/self.parent.height }
-            ##     on_release: app.root.current = 'loading_page'
+            Button:
+                ## TODO:  add logout to API?
+                id: 'logout_button'
+                markup: True
+                text: "{}".format( icon( 'fa-sign-out' ) )
+                ##disabled: True
+                size_hint: 0.75,None
+                height: self.width
+                pos_hint: {'center_x': 0.5, 'top': (1*(self.parent.width)-(self.parent.width*0.25)/2)/self.parent.height }
+                on_release: app.root.screens[ 0 ].endSession()
 
 
 <ReadPlan>:
@@ -172,17 +179,24 @@ ScreenManagement:
                     padding: 10
                     spacing: 10
                     Label:
-                    Label:
+                    Button:
+                        markup: True
+                        text: "{}".format( icon( 'fa-comment-o' ) )
+                        size_hint_y: None
+                        height: root.height * 0.08
+                        on_release: app.root.screens[ 3 ].readFromFingerButton()
                     TextInput:
                         id: finger
                         multiline: False
                         size_hint_y: None
                         height: root.height * 0.08
                     Button:
-                        text: 'Read'
+                        disabled: True
+                        markup: True
+                        text: "{}".format( icon( 'fa-search' ) )
                         size_hint_y: None
                         height: root.height * 0.08
-                        on_release: app.root.screens[ 3 ].readFromFingerButton()
+                        ##on_release: app.root.screens[ 3 ].searchFromFingerButton()
                     Label:
                         text: 'Username'
                         size_hint_y: None
@@ -250,7 +264,9 @@ ScreenManagement:
             
             Button:
                 id: 'home_button'
-                text: 'home'
+                markup: True
+                text: "{}".format( icon( 'fa-home' ) )
+                ##text: 'home'
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-0*(self.parent.width*0.75)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -266,7 +282,9 @@ ScreenManagement:
 
             Button:
                 id: 'autofinger_list_button'
-                text: 'fi'
+                markup: True
+                text: "{}".format( icon( 'fa-list-ol' ) )
+                ##text: 'fi'
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-1*(self.parent.width*0.875)-(self.parent.width*0.25)/2)/self.parent.height }
