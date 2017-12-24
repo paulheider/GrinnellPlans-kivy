@@ -250,6 +250,7 @@ class LoginScreen( Screen ):
                 tmp_cookies = requests.utils.cookiejar_from_dict( pickle.load( fp ) )
                 session = requests.Session()
                 session.cookies.update( tmp_cookies )
+                plans_app.screens[ 0 ].ids.username.text = cookie_jar.get( 'user_name' )[ 'username' ]
             return True
         return False
 
@@ -547,7 +548,7 @@ class ScreenManagement( ScreenManager ):
 plans_app = Builder.load_file( "main.kv" )
 
 class GrinnellPlansApp(App):
-    __version__ = "17.52.7"
+    __version__ = "17.52.8"
     
     def build(self):
         print( 'Screens:  {}'.format( plans_app.screens ) )
