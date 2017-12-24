@@ -149,7 +149,6 @@ ScreenManagement:
                 id: 'logout_button'
                 markup: True
                 text: "{}".format( icon( 'fa-sign-out' ) )
-                ##disabled: True
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (1*(self.parent.width)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -266,7 +265,6 @@ ScreenManagement:
                 id: 'home_button'
                 markup: True
                 text: "{}".format( icon( 'fa-home' ) )
-                ##text: 'home'
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-0*(self.parent.width*0.75)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -284,7 +282,6 @@ ScreenManagement:
                 id: 'autofinger_list_button'
                 markup: True
                 text: "{}".format( icon( 'fa-list-ol' ) )
-                ##text: 'fi'
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-1*(self.parent.width*0.875)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -300,13 +297,15 @@ ScreenManagement:
             ##     color:  0,0,1,0.5
             ##     on_release: app.root.current = 'loading_page'
 
-            ## Button:
-            ##     id: 'logout_button'
-            ##     text: 'logout'
-            ##     disabled: True
-            ##     size_hint: 0.75,None
-            ##     height: self.width
-            ##     pos_hint: {'center_x': 0.5, 'top': (1*(self.parent.width*1)-(self.parent.width*0.25)/2)/self.parent.height }
+            Button:
+                ## TODO:  add logout to API?
+                id: 'logout_button'
+                markup: True
+                text: "{}".format( icon( 'fa-sign-out' ) )
+                size_hint: 0.75,None
+                height: self.width
+                pos_hint: {'center_x': 0.5, 'top': (1*(self.parent.width)-(self.parent.width*0.25)/2)/self.parent.height }
+                on_release: app.root.screens[ 0 ].endSession()
 
 <EditPlan>:
     name: 'edit_plan'

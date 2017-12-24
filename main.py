@@ -13,7 +13,12 @@ import inspect
 
 import time
 import datetime
-import requests, requests.utils, pickle
+import requests, requests.utils
+
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
 #import urllib
 #import base64
 #import urllib2
@@ -542,7 +547,7 @@ class ScreenManagement( ScreenManager ):
 plans_app = Builder.load_file( "main.kv" )
 
 class GrinnellPlansApp(App):
-    __version__ = "17.51.2"
+    __version__ = "17.52.7"
     
     def build(self):
         print( 'Screens:  {}'.format( plans_app.screens ) )
