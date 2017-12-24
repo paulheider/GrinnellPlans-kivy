@@ -173,11 +173,12 @@ ScreenManagement:
     
                 GridLayout:
                     size_hint: (1,None)
-                    height: 3 * root.height * 0.08 + 2 * 20
+                    height: 2 * root.height * 0.08 + 2 * 20
                     cols: 4
                     padding: 10
                     spacing: 10
                     Label:
+                        id: username
                     Button:
                         markup: True
                         text: "{}".format( icon( 'fa-comment-o' ) )
@@ -196,18 +197,6 @@ ScreenManagement:
                         size_hint_y: None
                         height: root.height * 0.08
                         ##on_release: app.root.screens[ 3 ].searchFromFingerButton()
-                    Label:
-                        text: 'Username'
-                        size_hint_y: None
-                        height: root.height * 0.08
-                    Label:
-                        id: username
-                    Label:
-                        text: 'Name'
-                        size_hint_y: None
-                        height: root.height * 0.08
-                    Label:
-                        id: psuedo
                     Label:
                         text: 'Last Updated:'
                         size_hint_y: None
@@ -231,6 +220,8 @@ ScreenManagement:
                 ##     valign: 'middle'
                 ##     markup: True
                 ##     text: '...header...'
+                Label:
+                    id: psuedo
     
                 Label:
                     id: plan
