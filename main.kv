@@ -11,6 +11,11 @@ ScreenManagement:
 
 
 <LoginScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+                                                                    
     ## TODO:  add logo to bottom of screen
     name: 'login'
     title: 'Login'
@@ -65,7 +70,11 @@ ScreenManagement:
 
 <LandingPage>:
     name: 'landing_page'
-
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
     BoxLayout:
         size_hint: 1, 1
         orientation: 'horizontal'
@@ -157,7 +166,11 @@ ScreenManagement:
 
 <ReadPlan>:
     name: 'read_plan'
-
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    
     BoxLayout:
         size_hint: 1, 1
         orientation: 'horizontal'
@@ -300,6 +313,10 @@ ScreenManagement:
 
 <EditPlan>:
     name: 'edit_plan'
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
     
     Button:
         on_release: app.root.current = 'read_plan'

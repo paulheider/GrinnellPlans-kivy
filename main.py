@@ -59,6 +59,7 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.scrollview import ScrollView
 
 from kivy.utils import escape_markup
+from kivy.graphics import Color
 
 from kivy.storage.jsonstore import JsonStore
 from kivy.storage.dictstore import DictStore
@@ -113,10 +114,14 @@ class PlansHTMLParser(HTMLParser):
                 ##                          planlove_re.findall(href_content)))
                 ##planlove_target = planlove_re.findall( href_content )[ 0 ]
                 self.plan_buffer = ''.join( ( self.plan_buffer ,
-                                              '[color=0000ff]' ) )
+                                              '[color=' ,
+                                              cookie_jar.get( 'default_color_scheme' )[ 'planlove_fg' ] ,
+                                              ']' ) )
             elif( class_type == 'onplan' ):
                 self.plan_buffer = ''.join( ( self.plan_buffer ,
-                                              '[color=00ff00]' ) )
+                                              '[color=' ,
+                                              cookie_jar.get( 'default_color_scheme' )[ 'link_fg' ] ,
+                                              ']' ) )
         elif( tag == 'pre' ):
             ## TODO:  Make mono font configurable
             mono_font = 'RobotoMono-Regular'
@@ -312,6 +317,22 @@ class LoginScreen( Screen ):
     
     def __init__(self , **kwargs ):
         super(LoginScreen, self).__init__(**kwargs)
+        ## Setting color scheme
+        bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
+        with self.canvas.before:
+            Color( bg[ 0 ] , bg[ 1 ] , bg[ 2 ] , bg[ 3 ] )
+        Clock.schedule_once(self.init_ui, 0)
+    
+    def init_ui( self , dt = 0 ):
+        ## Setting color scheme
+        for this_child in self.children:
+            for widget in this_child.walk( restrict = False ):
+                if( type( widget ) == type( Button() ) ):
+                    widget.background_color = cookie_jar.get( 'color_scheme' )[ 'button_bg' ]
+                    widget.color = cookie_jar.get( 'color_scheme' )[ 'button_fg' ]
+                elif( type( widget ) == type( Label() ) ):
+                    widget.background_color = cookie_jar.get( 'color_scheme' )[ 'label_bg' ]
+                    widget.color = cookie_jar.get( 'color_scheme' )[ 'label_fg' ]
 
 
 class LoadingPage( Screen ):
@@ -322,6 +343,22 @@ class LoadingPage( Screen ):
     
     def __init__(self , **kwargs ):
         super(LoadingPage, self).__init__(**kwargs)
+        ## Setting color scheme
+        bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
+        with self.canvas.before:
+            Color( bg[ 0 ] , bg[ 1 ] , bg[ 2 ] , bg[ 3 ] )
+        Clock.schedule_once(self.init_ui, 0)
+    
+    def init_ui( self , dt = 0 ):
+        ## Setting color scheme
+        for this_child in self.children:
+            for widget in this_child.walk( restrict = False ):
+                if( type( widget ) == type( Button() ) ):
+                    widget.background_color = cookie_jar.get( 'color_scheme' )[ 'button_bg' ]
+                    widget.color = cookie_jar.get( 'color_scheme' )[ 'button_fg' ]
+                elif( type( widget ) == type( Label() ) ):
+                    widget.background_color = cookie_jar.get( 'color_scheme' )[ 'label_bg' ]
+                    widget.color = cookie_jar.get( 'color_scheme' )[ 'label_fg' ]
 
 
 class LandingPage( Screen ):
@@ -349,7 +386,9 @@ class LandingPage( Screen ):
                                 level_name[1:].replace( '_' , ' ' )
             level_lbl = Label( id = '{}_lbl'.format( level_name ) ,
                                size_y = button_height ,
-                               text = pretty_level_name )
+                               text = pretty_level_name ,
+                               background_color = cookie_jar.get( 'color_scheme' )[ 'label_bg' ] ,
+                               color = cookie_jar.get( 'color_scheme' )[ 'label_fg' ] )
             plans_app.screens[ 2 ].ids[ level_name ].add_widget( level_lbl )
             ## TODO:  is this line really necessary?
             plans_app.screens[ 2 ].ids[ level_name ].bind( minimum_height = plans_app.screens[ 2 ].ids[ level_name ].setter( 'height' ) )
@@ -361,7 +400,9 @@ class LandingPage( Screen ):
                     finger_btn = Button( text = username ,
                                          size_x = button_width ,
                                          size_y = button_height ,
-                                         size_hint_y = None )
+                                         size_hint_y = None ,
+                                         background_color = cookie_jar.get( 'color_scheme' )[ 'button_bg' ] ,
+                                         color = cookie_jar.get( 'color_scheme' )[ 'button_fg' ] )
                     ##TODO:  bind readTask to this button
                     finger_btn.bind( on_press = plans_app.screens[ 3 ].readFromLevels )
                     plans_app.screens[ 2 ].ids[ level_name ].add_widget( finger_btn )
@@ -378,6 +419,10 @@ class LandingPage( Screen ):
     
     def __init__(self , **kwargs ):
         super(LandingPage, self).__init__(**kwargs)
+        ## Setting color scheme
+        bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
+        with self.canvas.before:
+            Color( bg[ 0 ] , bg[ 1 ] , bg[ 2 ] , bg[ 3 ] )
         ## Pop-up + Progress Bar
         ## - https://gist.github.com/jsidew/4959534#file-kivy_progressbar_example-py
         self.progress_bar = ProgressBar()
@@ -387,7 +432,19 @@ class LandingPage( Screen ):
             size_hint = ( 0.4 , 0.2 )
         )
         self.popup.bind(on_open=self.puopen)
-        
+        Clock.schedule_once(self.init_ui, 0)
+    
+    def init_ui( self , dt = 0 ):
+        ## Setting color scheme
+        for this_child in self.children:
+            for widget in this_child.walk( restrict = False ):
+                if( type( widget ) == type( Button() ) ):
+                    widget.background_color = cookie_jar.get( 'color_scheme' )[ 'button_bg' ]
+                    widget.color = cookie_jar.get( 'color_scheme' )[ 'button_fg' ]
+                elif( type( widget ) == type( Label() ) ):
+                    widget.background_color = cookie_jar.get( 'color_scheme' )[ 'label_bg' ]
+                    widget.color = cookie_jar.get( 'color_scheme' )[ 'label_fg' ]
+
     def pop( self ):
         self.progress_bar.value = 1
         self.popup.open()
@@ -527,7 +584,12 @@ class ReadPlan( Screen ):
                 plans_app.screens[ 3 ].ids.last_login.text = last_login
                 plans_app.screens[ 3 ].ids.last_updated.text = last_updated
                 ##plans_app.screens[ 3 ].ids.plan.text = plan_body[ 0:250 ]##'asdf'
+                #LLOOGG( "{} - Original length = {}".format( this_line() ,
+                #                                            plans_app.screens[ 3 ].ids.plan.texture_size ) )
                 plans_app.screens[ 3 ].ids.plan.text = plan_body
+                #LLOOGG( "{} - Original length = {}".format( this_line() ,
+                #                                            plans_app.screens[ 3 ].ids.plan.texture_size ) )
+                #plans_app.screens[ 3 ].ids.plan.height = plans_app.screens[ 3 ].ids.plan.texture_size[ 1 ]
                 ## If we got here from clicking the read button, then empty out the data
                 plans_app.screens[ 3 ].ids.finger.text = ''
         except Exception as e:
@@ -536,6 +598,25 @@ class ReadPlan( Screen ):
 
     def __init__(self , **kwargs ):
         super(ReadPlan, self).__init__(**kwargs)
+        ## Setting color scheme
+        bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
+        with self.canvas.before:
+            Color( bg[ 0 ] , bg[ 1 ] , bg[ 2 ] , bg[ 3 ] )
+        Clock.schedule_once(self.init_ui, 0)
+    
+    def init_ui( self , dt = 0 ):
+        ## Setting color scheme
+        for this_child in self.children:
+            for widget in this_child.walk( restrict = False ):
+                if( type( widget ) == type( Button() ) ):
+                    widget.background_color = cookie_jar.get( 'color_scheme' )[ 'button_bg' ]
+                    widget.color = cookie_jar.get( 'color_scheme' )[ 'button_fg' ]
+                elif( type( widget ) == type( Label() ) ):
+                    widget.background_color = cookie_jar.get( 'color_scheme' )[ 'label_bg' ]
+                    widget.color = cookie_jar.get( 'color_scheme' )[ 'label_fg' ]
+        self.ids.plan.color = cookie_jar.get( 'color_scheme' )[ 'content_fg' ]
+        ## TODO - set different background color for plan content label
+        ##self.ids.plan.background_color = [ 1 , 1 , 1 , 1 ]
 
 
 class EditPlan( Screen ):
@@ -548,10 +629,38 @@ class ScreenManagement( ScreenManager ):
 plans_app = Builder.load_file( "main.kv" )
 
 class GrinnellPlansApp(App):
-    __version__ = "17.52.8"
+    __version__ = "17.52.9"
+
+    def loadDefaultColorScheme( self ):
+        ##if( not cookie_jar.exists( 'default_color_scheme' ) ):
+        cookie_jar.put( 'default_color_scheme' ,
+                        background = [ 1 , 1 , 1 , 1 ] ,
+                        ## rgb(149,165,166)
+                        button_bg = [ .58431372549019607843 , .64705882352941176470 , .65098039215686274509 , 1 ] ,
+                        button_fg = [ 1 , 1 , 1 , 1 ] ,
+                        label_bg = [ 0.5 , 0.5 , 0.5 , 1 ] ,
+                        label_fg = [ 0 , 0 , 0 , 1 ] ,
+                        content_fg = [ 0 , 0 , 0 , 1 ] ,
+                        planlove_fg = '0000ff' ,
+                        link_fg = '0000ff' )
+    
+    
+    def loadColorScheme( self ):
+        self.loadDefaultColorScheme()
+        cookie_jar.put( 'color_scheme' ,
+                        background = cookie_jar.get( 'default_color_scheme' )[ 'background' ] ,
+                        button_bg = cookie_jar.get( 'default_color_scheme' )[ 'button_bg' ] ,
+                        button_fg = cookie_jar.get( 'default_color_scheme' )[ 'button_fg' ] ,
+                        label_bg = cookie_jar.get( 'default_color_scheme' )[ 'label_bg' ] ,
+                        label_fg = cookie_jar.get( 'default_color_scheme' )[ 'label_fg' ] ,
+                        content_fg = cookie_jar.get( 'default_color_scheme' )[ 'content_fg' ] ,
+                        planlove_fg = cookie_jar.get( 'default_color_scheme' )[ 'planlove_fg' ] ,
+                        link_fg = cookie_jar.get( 'default_color_scheme' )[ 'link_fg' ] )
+    
     
     def build(self):
         print( 'Screens:  {}'.format( plans_app.screens ) )
+        self.loadColorScheme()
         if( plans_app.screens[ 0 ].loadSavedSession() ):
             plans_app.current = 'landing_page'
         else:
