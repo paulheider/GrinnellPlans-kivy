@@ -176,6 +176,7 @@ ScreenManagement:
         orientation: 'horizontal'
 
         ScrollView:
+            id: content_scroller
     
             GridLayout:
                 cols: 1
@@ -238,11 +239,9 @@ ScreenManagement:
     
                 Label:
                     id: plan
-                    text_size: self.size
-                    size_hint: (1,None)
-                    height: 1600
-                    color: 1,1,1,1
-                    ##bcolor: 0,0,0,1
+                    size_hint_y: None
+                    text_size: self.width, None
+                    height: self.texture_size[1]
                     halign: 'left'
                     valign: 'top'
                     markup: True

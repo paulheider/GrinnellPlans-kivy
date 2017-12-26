@@ -300,7 +300,7 @@ class LoginScreen( Screen ):
                     ##cookie_jar.put( 'user_pass' ,
                     ##                passwd = password )
                     json_response = response.json()
-                    print( '{} - {}'.format( this_line() , json_response ) )
+                    ##print( '{} - {}'.format( this_line() , json_response ) )
                     self.update_autofinger( json_response[ 'autofingerList' ] )
                     response.close()
                     LLOOGG( 'Logged in.  Checking plan...' )
@@ -462,35 +462,15 @@ class ReadPlan( Screen ):
     ## TODO:  add a button to flag plan for comment/later and see all flagged
     
     def on_enter( self ):
-        #with open( '/tmp/plan_body.html' , 'r' ) as f:
-        #    plan_body = self.cleanPlanBody( f.read() )
-        #f.closed
-        ##print( "{} - {}".format( this_line() , plan_body[ 0:250 ] ) )
-        LLOOGG( "{} - Original length = {}".format( this_line() ,
-        #                                               plans_app.screens[ 3 ].ids.plan.bcolor ,
-                                                    plans_app.screens[ 3 ].ids.plan.texture_size ) )
-        ## TODO:  Readjusting label size to match text size
-        ##   - https://blog.kivy.org/2014/07/wrapping-text-in-kivys-label/
-        #plans_app.screens[ 3 ].ids.plan.text = plan_body
-        ##plans_app.screens[ 3 ].ids.plan.text_size = ( 780 , 800 )
-        ##plans_app.screens[ 3 ].ids.plan.texture_size[ 1 ] )
-        ##plans_app.screens[ 3 ].ids.plan.texture_update()
-        ##plans_app.screens[ 3 ].ids.plan.height = plans_app.screens[ 3 ].ids.plan.texture_size[ 1 ]
-        ##plans_app.screens[ 3 ].ids.plan.size = plans_app.screens[ 3 ].ids.plan.texture_size
-        ##plans_app.screens[ 3 ].ids.plan.size = plans_app.screens[ 3 ].ids.plan.texture_size
-        ##text_size: self.width, None
-        ##height: self.texture_size[1]
-        #LLOOGG( "{} - Plan length = {} vs. {}".format( this_line() ,
-        #                                               len( plan_body ) ,
-        #                                               plans_app.screens[ 3 ].ids.plan.texture_size ) )
-        #
-
+        pass
+    
     def guestAuth( self , username ):
-        print( '{} -|'.format( username ) )
+        ##print( '{} -|'.format( username ) )
+        pass
     
     
     def cleanPlanBody( self , plan_body , this_encoding = None ):
-        print( '{} - Cleaning plan body'.format( this_line() ) )
+        ##print( '{} - Cleaning plan body'.format( this_line() ) )
         plans_parser = PlansHTMLParser()
         if( this_encoding == None ):
             plans_parser.feed( plan_body )
@@ -574,24 +554,16 @@ class ReadPlan( Screen ):
                                                 response.encoding )
                 last_login = self.adjustClock( json_response[ 'plandata' ][ 'last_login' ] )
                 last_updated = self.adjustClock( json_response[ 'plandata' ][ 'last_updated' ] )
-                ##LLOOGG( '{}'.format( this_line() ) )
-                ##with open( '/tmp/plan_body.html' , 'w' ) as f:
-                ##    f.write( plan_body )
-                ##f.closed
                 response.close()
                 plans_app.screens[ 3 ].ids.username.text = username
                 plans_app.screens[ 3 ].ids.psuedo.text = plan_name
                 plans_app.screens[ 3 ].ids.last_login.text = last_login
                 plans_app.screens[ 3 ].ids.last_updated.text = last_updated
-                ##plans_app.screens[ 3 ].ids.plan.text = plan_body[ 0:250 ]##'asdf'
-                #LLOOGG( "{} - Original length = {}".format( this_line() ,
-                #                                            plans_app.screens[ 3 ].ids.plan.texture_size ) )
                 plans_app.screens[ 3 ].ids.plan.text = plan_body
-                #LLOOGG( "{} - Original length = {}".format( this_line() ,
-                #                                            plans_app.screens[ 3 ].ids.plan.texture_size ) )
-                #plans_app.screens[ 3 ].ids.plan.height = plans_app.screens[ 3 ].ids.plan.texture_size[ 1 ]
                 ## If we got here from clicking the read button, then empty out the data
                 plans_app.screens[ 3 ].ids.finger.text = ''
+                ## and move the scrollview back to the top of the page
+                plans_app.screens[ 3 ].ids.content_scroller.scroll_to( plans_app.screens[ 3 ].ids.username )
         except Exception as e:
             st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
             LLOOGG( 'Error:  {1}\n'.format( st , e ) )
@@ -629,7 +601,7 @@ class ScreenManagement( ScreenManager ):
 plans_app = Builder.load_file( "main.kv" )
 
 class GrinnellPlansApp(App):
-    __version__ = "17.52.9"
+    __version__ = "17.52.10"
 
     def loadDefaultColorScheme( self ):
         ##if( not cookie_jar.exists( 'default_color_scheme' ) ):
@@ -659,7 +631,7 @@ class GrinnellPlansApp(App):
     
     
     def build(self):
-        print( 'Screens:  {}'.format( plans_app.screens ) )
+        ##print( 'Screens:  {}'.format( plans_app.screens ) )
         self.loadColorScheme()
         if( plans_app.screens[ 0 ].loadSavedSession() ):
             plans_app.current = 'landing_page'
