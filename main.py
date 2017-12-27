@@ -320,7 +320,8 @@ class LoginScreen( Screen ):
         ## Setting color scheme
         bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
         with self.canvas.before:
-            Color( bg[ 0 ] , bg[ 1 ] , bg[ 2 ] , bg[ 3 ] )
+            ## TODO - pull color from cookie_jar
+            Color( 1 , 1 , 1 , 1 )
         Clock.schedule_once(self.init_ui, 0)
     
     def init_ui( self , dt = 0 ):
@@ -346,7 +347,8 @@ class LoadingPage( Screen ):
         ## Setting color scheme
         bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
         with self.canvas.before:
-            Color( bg[ 0 ] , bg[ 1 ] , bg[ 2 ] , bg[ 3 ] )
+            ## TODO - pull color from cookie_jar
+            Color( 1 , 1 , 1 , 1 )
         Clock.schedule_once(self.init_ui, 0)
     
     def init_ui( self , dt = 0 ):
@@ -422,7 +424,8 @@ class LandingPage( Screen ):
         ## Setting color scheme
         bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
         with self.canvas.before:
-            Color( bg[ 0 ] , bg[ 1 ] , bg[ 2 ] , bg[ 3 ] )
+            ## TODO - pull color from cookie_jar
+            Color( 1 , 1 , 1 , 1 )
         ## Pop-up + Progress Bar
         ## - https://gist.github.com/jsidew/4959534#file-kivy_progressbar_example-py
         self.progress_bar = ProgressBar()
@@ -573,7 +576,8 @@ class ReadPlan( Screen ):
         ## Setting color scheme
         bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
         with self.canvas.before:
-            Color( bg[ 0 ] , bg[ 1 ] , bg[ 2 ] , bg[ 3 ] )
+            ## TODO - pull color from cookie_jar
+            Color( 1 , 1 , 1 , 1 )
         Clock.schedule_once(self.init_ui, 0)
     
     def init_ui( self , dt = 0 ):
