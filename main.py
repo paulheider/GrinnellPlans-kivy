@@ -318,7 +318,7 @@ class LoginScreen( Screen ):
     def __init__(self , **kwargs ):
         super(LoginScreen, self).__init__(**kwargs)
         ## Setting color scheme
-        bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
+        #bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
         with self.canvas.before:
             ## TODO - pull color from cookie_jar
             Color( 1 , 1 , 1 , 1 )
@@ -345,7 +345,7 @@ class LoadingPage( Screen ):
     def __init__(self , **kwargs ):
         super(LoadingPage, self).__init__(**kwargs)
         ## Setting color scheme
-        bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
+        #bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
         with self.canvas.before:
             ## TODO - pull color from cookie_jar
             Color( 1 , 1 , 1 , 1 )
@@ -422,7 +422,7 @@ class LandingPage( Screen ):
     def __init__(self , **kwargs ):
         super(LandingPage, self).__init__(**kwargs)
         ## Setting color scheme
-        bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
+        #bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
         with self.canvas.before:
             ## TODO - pull color from cookie_jar
             Color( 1 , 1 , 1 , 1 )
@@ -574,10 +574,10 @@ class ReadPlan( Screen ):
     def __init__(self , **kwargs ):
         super(ReadPlan, self).__init__(**kwargs)
         ## Setting color scheme
-        bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
-        with self.canvas.before:
-            ## TODO - pull color from cookie_jar
-            Color( 1 , 1 , 1 , 1 )
+        #bg = cookie_jar.get( 'color_scheme' )[ 'background' ]
+        #with self.canvas.before:
+        #    ## TODO - pull color from cookie_jar
+        #    Color( 1 , 1 , 1 , 1 )
         Clock.schedule_once(self.init_ui, 0)
     
     def init_ui( self , dt = 0 ):
@@ -592,7 +592,7 @@ class ReadPlan( Screen ):
                     widget.color = cookie_jar.get( 'color_scheme' )[ 'label_fg' ]
         self.ids.plan.color = cookie_jar.get( 'color_scheme' )[ 'content_fg' ]
         ## TODO - set different background color for plan content label
-        ##self.ids.plan.background_color = [ 1 , 1 , 1 , 1 ]
+        self.ids.plan.background_color = [ 1 , 1 , 1 , 1 ]
 
 
 class EditPlan( Screen ):
@@ -605,7 +605,7 @@ class ScreenManagement( ScreenManager ):
 plans_app = Builder.load_file( "main.kv" )
 
 class GrinnellPlansApp(App):
-    __version__ = "17.52.10"
+    __version__ = "17.52.12"
 
     def loadDefaultColorScheme( self ):
         ##if( not cookie_jar.exists( 'default_color_scheme' ) ):
