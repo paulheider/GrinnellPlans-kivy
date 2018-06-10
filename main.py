@@ -25,8 +25,6 @@ except ImportError:
 
 import re
 
-##import json
-
 ##from html2rest import html2rest
 ##import StringIO
 from HTMLParser import HTMLParser
@@ -218,7 +216,6 @@ log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
 def LLOOGG( message ):
     global now_stamp
     global log_file
-    ##plans_app.screens[ 1 ].ids[ 'loading_page_logs' ].text = message
     Logger.info( message )
     log_file = os.path.join( App.get_running_app().user_data_dir ,
                              'log' ,
@@ -259,14 +256,6 @@ def get_json_list( session , username = None , testing = False ):
                 return json_list
             else:
                 return None
-            # ## Perhaps your cookie is stale
-            # LLOOGG( 'Warning: ' +
-            #         'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
-            # if( cookie_jar.exists( 'user_name' ) ):
-            #     ## TODO:  make this a robust look-up rather than hard-coded index
-            #     plans_app.screens[ 0 ].ids.username.text = cookie_jar.get( 'user_name' )[ 'username' ]
-            #     plans_app.current = 'login'
-            #     return None
         else:
             ## Don't forget to close the response for good housekeeping
             response.close()
@@ -298,24 +287,6 @@ def session_login( session , username , password , testing = False ):
             LLOOGG( 'Headers = {}'.format( response.headers ) )
             LLOOGG( 'Text = {}'.format( response.text ) )
         if( response.status_code == requests.codes.ok ):
-            # try:
-            #     json.loads( response.text )
-            # except ValueError, e:
-            #     #planlove_re = re.compile( "^read\.php\?searchname=([a-zA-Z0-9]+)$" )
-            #     invalid_matches = re.search( '{"message":"Invalid username or password.","success":false}' ,
-            #                                  response.text )
-            #     response.close()
-            #     if( invalid_matches == None ):
-            #         ## If text was returned rather than JSON,
-            #         ## we successfully logged in but ran into
-            #         ## the missing Net_GeoIP server problem
-            #         LLOOGG( 'Staging: {} - Logged in.  Checking plan...'.format( this_line() ) )
-            #         with open('session.dat', 'w') as fp:
-            #             pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
-            #                          fp )
-            #         return( True , session )
-            #     else:
-            #         return( False , session )
             ##
             json_response = response.json()
             response.close()
@@ -342,7 +313,6 @@ def session_login( session , username , password , testing = False ):
                 with open('session.dat', 'w') as fp:
                     pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
                                  fp )
-                ##plans_app.current = 'landing_page'
                 return( True , session )
             else:
                 LLOOGG( 'Warning: ' +
@@ -362,7 +332,7 @@ def session_login( session , username , password , testing = False ):
 ########################################################################
 
 class LoginScreen( Screen ):
-    __version__ = "18.23.9"
+    __version__ = "18.23.10"
 
     def version( self , *args ):
         return self.__version__
@@ -392,57 +362,8 @@ class LoginScreen( Screen ):
                 ##print( "\t{}".format( username ) )
 
 
-    # def update_autofinger( self , json_list = None ):
-    #     ## Updating the autofinger list happens automatically by a new
-    #     ## api call unless you provide a json_list of the autofinger
-    #     ## level entries when calling this function.
-    #     if( json_list == None ):
-    #         ## session_manager.get_json_list( session )
-    #         try:
-    #             username = cookie_jar.get( 'user_name' )[ 'username' ]
-    #         except Exception as e:
-    #             st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-    #             LLOOGG( 'Error:  Unable to extract username from cookie jar - {1}\n'.format( st , e ) )            
-    #         try:
-    #             url = api_urls[ 'autofinger' ]
-    #             response = session.post( url ,
-    #                                      data = { 'username': username } )
-    #             json_response = None
-    #             if( response.status_code == 200 ):
-    #                 json_response = response.json()
-    #                 response.close()
-    #                 json_message = json_response[ 'message' ]
-    #                 json_success = json_response[ 'success' ]
-    #                 if( not json_success ):
-    #                     ## Perhaps your cookie is stale
-    #                     LLOOGG( 'Warning: ' +
-    #                             'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
-    #                     if( cookie_jar.exists( 'user_name' ) ):
-    #                         ## TODO:  make this a robust look-up rather than hard-coded index
-    #                         plans_app.screens[ 0 ].ids.username.text = cookie_jar.get( 'user_name' )[ 'username' ]
-    #                     plans_app.current = 'login'
-    #                     return()
-    #                 json_list = json_response[ 'autofingerList' ]
-    #         except Exception as e:
-    #             st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-    #             LLOOGG( 'Error: {1}'.format( st , e ) )
-    #     ## Clear out the old global variable for update
-    #     global autofinger_list
-    #     autofinger_list = {}
-    #     ## Loop through the autofinger levels to update each level in turn
-    #     for level in json_list:
-    #         level_number = level[ u'level' ]
-    #         ##print( 'Level {}'.format( level_number ) )
-    #         autofinger_list[ 'level_{}'.format( level_number ) ] = []
-    #         ##autofinger_list[ 'level_{}'.format( level_number ) ] = ''
-    #         level_string = 'level_{}'.format( level_number )
-    #         for username in level[ u'usernames' ]:
-    #             autofinger_list[ level_string ].append( username )
-    #             ##print( "\t{}".format( username ) )
-
-    
     def guestAuth( self , username , password ):
-        pass##print( '{} -> {}'.format( username , password ) )
+        pass
 
 
     def loadSavedSession( self ):
@@ -492,7 +413,6 @@ class LoginScreen( Screen ):
                     return()
                 else:
                     self.update_autofinger( json_list )
-                ##plans_app.current = 'landing_page'
             else:
                 self.endSession()
                 return()
@@ -500,59 +420,7 @@ class LoginScreen( Screen ):
             st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
             LLOOGG( 'Error:  {1}\n'.format( st , e ) )
     
-    # def logInTask( self , username , password ):
-    #     global session
-    #     plans_app.current = 'landing_page'
-    #     LLOOGG( "Staging: {} - {}h {}w".format( this_line() ,
-    #                                             plans_app.height ,
-    #                                             plans_app.width ) )
-    #     try:
-    #         if( username == '' ):
-    #             LLOOGG( 'Error: Username must not be empty.' )
-    #         elif( password == '' ):
-    #             LLOOGG( 'Error: Password must not be empty.' )
-    #         else:
-    #             ##LLOOGG( "{} - {} {}".format( this_line() ,
-    #             ##                             username ,
-    #             ##                             password ) )
-    #             login_url = 'https://www.grinnellplans.com/api/1/index.php?task=login'
-    #             LLOOGG( "Staging: {} - {}".format( this_line() , login_url ) )
-    #             session = requests.Session()
-    #             LLOOGG( "Staging: {} - {}".format( this_line() , 'session created' ) )
-    #             response = session.post( login_url ,
-    #                                      data = { 'username': username ,
-    #                                               'password': password } )
-    #             LLOOGG( "Staging: {} - {}".format( this_line() , 'response generated' ) )
-    #             jar = response.cookies
-    #             if( response.status_code == 200 ):
-    #                 cookie_jar.put( 'user_name' ,
-    #                                 username = username )
-    #                 ##cookie_jar.put( 'user_pass' ,
-    #                 ##                passwd = password )
-    #                 json_response = response.json()
-    #                 response.close()
-    #                 json_message = json_response[ 'message' ]
-    #                 json_success = json_response[ 'success' ]
-    #                 if( not json_success ):
-    #                     LLOOGG( 'Warning: ' +
-    #                             'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
-    #                     self.endSession()
-    #                 print( '{} - {}'.format( this_line() , json_response ) )
-    #                 self.update_autofinger( json_response[ 'autofingerList' ] )
-    #                 LLOOGG( 'Staging: Logged in.  Checking plan...' )
-    #                 with open('session.dat', 'w') as fp:
-    #                     pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
-    #                                  fp )
-    #                 ##plans_app.current = 'landing_page'
-    #             else:
-    #                 LLOOGG( 'Error: Failed to log in (Status Code = {})'.format( response.status_code ) )
-    #                 self.endSession()
-    #                 return()
-    #     except Exception as e:
-    #         st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-    #         LLOOGG( 'Error:  {1}\n'.format( st , e ) )
-    
-    
+
     def __init__(self , **kwargs ):
         super(LoginScreen, self).__init__(**kwargs)
         ## Setting color scheme
@@ -783,9 +651,6 @@ class ReadPlan( Screen ):
                                      data = { 'username' : username } )
             json_response = None
             if( response.status_code == requests.codes.ok ):
-                ##response_text = response.text
-                ##json_part = response_text[ response_text.find( '{' ): ]
-                ##json_response = json.loads( json_part )
                 json_response = response.json()
                 ##print( 'Encoding = {}'.format( response.encoding ) )
                 ##plan_body = response.text.encode( response.encoding )
