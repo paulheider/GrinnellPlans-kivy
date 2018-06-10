@@ -25,6 +25,8 @@ except ImportError:
 
 import re
 
+##import json
+
 ##from html2rest import html2rest
 ##import StringIO
 from HTMLParser import HTMLParser
@@ -87,6 +89,15 @@ def this_line():
 ## read.php?searchname=gspelvin
 planlove_re = re.compile( "^read\.php\?searchname=([a-zA-Z0-9]+)$" )
 autofinger_level_re = re.compile( "^level_[0-9]$" )
+
+## TODO - add a if( debug mode flag ): here?
+##        or maybe make this a toggle on the home screen
+##        to use an alternate backend
+base_url = 'https://www.grinnellplans.com'
+
+api_urls = { 'autofinger' : '{}/api/1/index.php?task={}'.format( base_url , 'autofingerlist' ) ,
+             'read'       : '{}/api/1/index.php?task={}'.format( base_url , 'read' ) ,
+             'login'      : '{}/api/1/index.php?task={}'.format( base_url , 'login' ) }
 
 plan_name_parser = HTMLParser()
 
@@ -198,37 +209,174 @@ session = None
 
 autofinger_list = {}
 
+now_time = datetime.datetime.now()
+now_stamp = now_time.strftime( "%Y-%m-%d %H:%M:%S" )
+now_filesafe = now_time.strftime( "%Y-%m-%d_%H%M%S" )
+log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
+
 ## TODO:  add remember username/password button
 def LLOOGG( message ):
+    global now_stamp
+    global log_file
     ##plans_app.screens[ 1 ].ids[ 'loading_page_logs' ].text = message
     Logger.info( message )
+    log_file = os.path.join( App.get_running_app().user_data_dir ,
+                             'log' ,
+                             log_file )
+    with open( log_file , 'a' ) as fp:
+        fp.write( '{}\t{}\n'.format( now_stamp , message ) )
 
+########################################################################
+##
+########################################################################
+
+def get_json_list( session , username = None , testing = False ):
+    if( username == None ):
+        try:
+            username = cookie_jar.get( 'user_name' )[ 'username' ]
+        except Exception as e:
+            st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
+            LLOOGG( 'Error:  Unable to extract username from cookie jar - {1}\n'.format( st , e ) )
+            return None
+    ##
+    try:
+        url = api_urls[ 'autofinger' ]
+        response = session.post( url ,
+                                 data = { 'username' : username } )
+        if( testing ):
+            LLOOGG( 'Staging: Status Code = {}'.format( response.status_code ) )
+        if( response.status_code == 200 ):
+            json_response = response.json()
+            response.close()
+            json_message = json_response[ 'message' ]
+            json_success = json_response[ 'success' ]
+            if( testing ):
+                LLOOGG( 'Staging: JSON Response = {}'.format( json_response ) )
+                LLOOGG( 'Staging: JSON Success = {}'.format( json_success ) )
+                LLOOGG( 'Staging: JSON Message = {}'.format( json_message ) )
+            if( json_success ):
+                json_list = json_response[ 'autofingerList' ]
+                return json_list
+            else:
+                return None
+            # ## Perhaps your cookie is stale
+            # LLOOGG( 'Warning: ' +
+            #         'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
+            # if( cookie_jar.exists( 'user_name' ) ):
+            #     ## TODO:  make this a robust look-up rather than hard-coded index
+            #     plans_app.screens[ 0 ].ids.username.text = cookie_jar.get( 'user_name' )[ 'username' ]
+            #     plans_app.current = 'login'
+            #     return None
+        else:
+            ## Don't forget to close the response for good housekeeping
+            response.close()
+            return None
+    except Exception as e:
+        st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
+        LLOOGG( 'Error: {1}'.format( st , e ) )
+    return None
+
+
+def session_login( session , username , password , testing = False ):
+    try:
+        if( username == '' ):
+            LLOOGG( 'Error: Username must not be empty.' )
+            return( False , session )
+        elif( password == '' ):
+            LLOOGG( 'Error: Password must not be empty.' )
+            return( False , session )
+        LLOOGG( "Staging: {} - {}".format( this_line() , api_urls[ 'login' ] ) )
+        session = requests.Session()
+        LLOOGG( "Staging: {} - {}".format( this_line() , 'session created' ) )
+        response = session.post( api_urls[ 'login' ] ,
+                                 data = { 'username' : username ,
+                                          'password' : password } )
+        LLOOGG( "Staging: {} - {}".format( this_line() , 'response generated' ) )
+        if( testing ):
+            LLOOGG( '{}'.format( response ) )
+            LLOOGG( 'Staging: Status Code = {}'.format( response.status_code ) )
+            LLOOGG( 'Headers = {}'.format( response.headers ) )
+            LLOOGG( 'Text = {}'.format( response.text ) )
+        if( response.status_code == requests.codes.ok ):
+            # try:
+            #     json.loads( response.text )
+            # except ValueError, e:
+            #     #planlove_re = re.compile( "^read\.php\?searchname=([a-zA-Z0-9]+)$" )
+            #     invalid_matches = re.search( '{"message":"Invalid username or password.","success":false}' ,
+            #                                  response.text )
+            #     response.close()
+            #     if( invalid_matches == None ):
+            #         ## If text was returned rather than JSON,
+            #         ## we successfully logged in but ran into
+            #         ## the missing Net_GeoIP server problem
+            #         LLOOGG( 'Staging: {} - Logged in.  Checking plan...'.format( this_line() ) )
+            #         with open('session.dat', 'w') as fp:
+            #             pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
+            #                          fp )
+            #         return( True , session )
+            #     else:
+            #         return( False , session )
+            ##
+            json_response = response.json()
+            response.close()
+            json_success = json_response[ 'success' ]
+            json_message = json_response[ 'message' ]
+            if( testing ):
+                LLOOGG( 'Staging: JSON Success = {}'.format( json_success ) )
+                LLOOGG( 'Staging: JSON Message = {}'.format( json_message ) )
+            if( json_success ):
+                if( testing ):
+                    print( '{} - {}'.format( this_line() , json_response ) )
+                ## TODO - remember the SessionID cookie?
+                #jar = response.cookies
+                ##LLOOGG( '{}'.format( jar[ 'Cookie PHPSESSID' ] ) )
+                if( testing ):
+                    LLOOGG( '{}'.format( jar ) )
+                ## TODO - if remember username is checked, then...
+                cookie_jar.put( 'user_name' ,
+                                username = username )
+                ## TODO - if remember password is checked, then...
+                ##cookie_jar.put( 'user_pass' ,
+                ##                passwd = password )
+                LLOOGG( 'Staging: {} - Logged in.  Checking plan...'.format( this_line() ) )
+                with open('session.dat', 'w') as fp:
+                    pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
+                                 fp )
+                ##plans_app.current = 'landing_page'
+                return( True , session )
+            else:
+                LLOOGG( 'Warning: ' +
+                        'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
+                return( False , session )
+        else:
+            LLOOGG( 'Error: Failed to log in (Status Code = {})'.format( response.status_code ) )
+            return( False , session )
+    except Exception as e:
+        st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
+        LLOOGG( 'Error:  {1}\n'.format( st , e ) )
+    return( False , session )
+
+
+########################################################################
+##
+########################################################################
 
 class LoginScreen( Screen ):
+    __version__ = "18.23.9"
 
+    def version( self , *args ):
+        return self.__version__
 
     def update_autofinger( self , json_list = None ):
+        global session
         ## Updating the autofinger list happens automatically by a new
         ## api call unless you provide a json_list of the autofinger
         ## level entries when calling this function.
         if( json_list == None ):
-            try:
-                username = cookie_jar.get( 'user_name' )[ 'username' ]
-            except Exception as e:
-                st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-                LLOOGG( 'Error:  Unable to extract username from cookie jar - {1}\n'.format( st , e ) )
-            try:
-                url = 'https://www.grinnellplans.com/api/1/index.php?task=autofingerlist'
-                response = session.post( url ,
-                                         data = { 'username': username } )
-                json_response = None
-                if( response.status_code == 200 ):
-                    json_response = response.json()
-                    response.close()
-                    json_list = json_response[ 'autofingerList' ]
-            except Exception as e:
-                st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-                LLOOGG( 'Error:  {1}\n'.format( st , e ) )
+            json_list = get_json_list( session = session )
+            if( json_list == None ):
+                LLOOGG( 'Error: autofinger list still empty after trying to load it.' )
+                return()
         ## Clear out the old global variable for update
         global autofinger_list
         autofinger_list = {}
@@ -242,6 +390,55 @@ class LoginScreen( Screen ):
             for username in level[ u'usernames' ]:
                 autofinger_list[ level_string ].append( username )
                 ##print( "\t{}".format( username ) )
+
+
+    # def update_autofinger( self , json_list = None ):
+    #     ## Updating the autofinger list happens automatically by a new
+    #     ## api call unless you provide a json_list of the autofinger
+    #     ## level entries when calling this function.
+    #     if( json_list == None ):
+    #         ## session_manager.get_json_list( session )
+    #         try:
+    #             username = cookie_jar.get( 'user_name' )[ 'username' ]
+    #         except Exception as e:
+    #             st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
+    #             LLOOGG( 'Error:  Unable to extract username from cookie jar - {1}\n'.format( st , e ) )            
+    #         try:
+    #             url = api_urls[ 'autofinger' ]
+    #             response = session.post( url ,
+    #                                      data = { 'username': username } )
+    #             json_response = None
+    #             if( response.status_code == 200 ):
+    #                 json_response = response.json()
+    #                 response.close()
+    #                 json_message = json_response[ 'message' ]
+    #                 json_success = json_response[ 'success' ]
+    #                 if( not json_success ):
+    #                     ## Perhaps your cookie is stale
+    #                     LLOOGG( 'Warning: ' +
+    #                             'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
+    #                     if( cookie_jar.exists( 'user_name' ) ):
+    #                         ## TODO:  make this a robust look-up rather than hard-coded index
+    #                         plans_app.screens[ 0 ].ids.username.text = cookie_jar.get( 'user_name' )[ 'username' ]
+    #                     plans_app.current = 'login'
+    #                     return()
+    #                 json_list = json_response[ 'autofingerList' ]
+    #         except Exception as e:
+    #             st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
+    #             LLOOGG( 'Error: {1}'.format( st , e ) )
+    #     ## Clear out the old global variable for update
+    #     global autofinger_list
+    #     autofinger_list = {}
+    #     ## Loop through the autofinger levels to update each level in turn
+    #     for level in json_list:
+    #         level_number = level[ u'level' ]
+    #         ##print( 'Level {}'.format( level_number ) )
+    #         autofinger_list[ 'level_{}'.format( level_number ) ] = []
+    #         ##autofinger_list[ 'level_{}'.format( level_number ) ] = ''
+    #         level_string = 'level_{}'.format( level_number )
+    #         for username in level[ u'usernames' ]:
+    #             autofinger_list[ level_string ].append( username )
+    #             ##print( "\t{}".format( username ) )
 
     
     def guestAuth( self , username , password ):
@@ -261,9 +458,12 @@ class LoginScreen( Screen ):
 
     
     def endSession( self ):
+        ## TODO - add a button to the home screen to that you can do very early
+        ##        in case the saved data is corrupted somehow? same for cookie_jar, defaults?
         global session
         session = None
-        os.remove( 'session.dat' )
+        if( os.path.exists( 'session.dat' ) ):
+            os.remove( 'session.dat' )
         if( cookie_jar.exists( 'user_name' ) ):
             ## TODO:  make this a robust look-up rather than hard-coded index
             plans_app.screens[ 0 ].ids.username.text = cookie_jar.get( 'user_name' )[ 'username' ]
@@ -271,48 +471,86 @@ class LoginScreen( Screen ):
 
     
     def logInTask( self , username , password ):
-        global session
         plans_app.current = 'landing_page'
-        LLOOGG( "{} - {}h {}w".format( this_line() ,
-                                       plans_app.height ,
-                                       plans_app.width ) )
+        global session
+        LLOOGG( "Staging: {} - {}h {}w".format( this_line() ,
+                                                plans_app.height ,
+                                                plans_app.width ) )
         try:
-            if( username == '' ):
-                LLOOGG( 'Username must not be empty.' )
-            elif( password == '' ):
-                LLOOGG( 'Password must not be empty.' )
-            else:
-                ##LLOOGG( "{} - {} {}".format( this_line() ,
-                ##                             username ,
-                ##                             password ) )
-                login_url = 'https://www.grinnellplans.com/api/1/index.php?task=login'
-                LLOOGG( "{} - {}".format( this_line() , login_url ) )
-                session = requests.Session()
-                LLOOGG( "{} - {}".format( this_line() , 'session created' ) )
-                response = session.post( login_url ,
-                                         data = { 'username': username ,
-                                                  'password': password } )
-                LLOOGG( "{} - {}".format( this_line() , 'response generated' ) )
-                jar = response.cookies
-                if( response.status_code == 200 ):
-                    cookie_jar.put( 'user_name' ,
-                                    username = username )
-                    ##cookie_jar.put( 'user_pass' ,
-                    ##                passwd = password )
-                    json_response = response.json()
-                    ##print( '{} - {}'.format( this_line() , json_response ) )
-                    self.update_autofinger( json_response[ 'autofingerList' ] )
-                    response.close()
-                    LLOOGG( 'Logged in.  Checking plan...' )
-                    with open('session.dat', 'w') as fp:
-                        pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
-                                     fp )
-                    ##plans_app.current = 'landing_page'
+            ( successful_login , session ) = \
+              session_login( session , username , password )
+            ##
+            if( successful_login ):
+                ## TODO - move this extra call to get_json_list back inside
+                ##        the call to session_login
+                json_list = get_json_list( session = session ,
+                                           username = username )
+                if( json_list == None ):
+                    LLOOGG( 'Warning: I had trouble loading the autofinger list' )
+                    plans_app.current = 'login_page'
+                    self.endSession()
+                    return()
                 else:
-                    LLOOGG( 'Failed to log in:  {}'.format( response.status_code ) )
+                    self.update_autofinger( json_list )
+                ##plans_app.current = 'landing_page'
+            else:
+                self.endSession()
+                return()
         except Exception as e:
             st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
             LLOOGG( 'Error:  {1}\n'.format( st , e ) )
+    
+    # def logInTask( self , username , password ):
+    #     global session
+    #     plans_app.current = 'landing_page'
+    #     LLOOGG( "Staging: {} - {}h {}w".format( this_line() ,
+    #                                             plans_app.height ,
+    #                                             plans_app.width ) )
+    #     try:
+    #         if( username == '' ):
+    #             LLOOGG( 'Error: Username must not be empty.' )
+    #         elif( password == '' ):
+    #             LLOOGG( 'Error: Password must not be empty.' )
+    #         else:
+    #             ##LLOOGG( "{} - {} {}".format( this_line() ,
+    #             ##                             username ,
+    #             ##                             password ) )
+    #             login_url = 'https://www.grinnellplans.com/api/1/index.php?task=login'
+    #             LLOOGG( "Staging: {} - {}".format( this_line() , login_url ) )
+    #             session = requests.Session()
+    #             LLOOGG( "Staging: {} - {}".format( this_line() , 'session created' ) )
+    #             response = session.post( login_url ,
+    #                                      data = { 'username': username ,
+    #                                               'password': password } )
+    #             LLOOGG( "Staging: {} - {}".format( this_line() , 'response generated' ) )
+    #             jar = response.cookies
+    #             if( response.status_code == 200 ):
+    #                 cookie_jar.put( 'user_name' ,
+    #                                 username = username )
+    #                 ##cookie_jar.put( 'user_pass' ,
+    #                 ##                passwd = password )
+    #                 json_response = response.json()
+    #                 response.close()
+    #                 json_message = json_response[ 'message' ]
+    #                 json_success = json_response[ 'success' ]
+    #                 if( not json_success ):
+    #                     LLOOGG( 'Warning: ' +
+    #                             'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
+    #                     self.endSession()
+    #                 print( '{} - {}'.format( this_line() , json_response ) )
+    #                 self.update_autofinger( json_response[ 'autofingerList' ] )
+    #                 LLOOGG( 'Staging: Logged in.  Checking plan...' )
+    #                 with open('session.dat', 'w') as fp:
+    #                     pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
+    #                                  fp )
+    #                 ##plans_app.current = 'landing_page'
+    #             else:
+    #                 LLOOGG( 'Error: Failed to log in (Status Code = {})'.format( response.status_code ) )
+    #                 self.endSession()
+    #                 return()
+    #     except Exception as e:
+    #         st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
+    #         LLOOGG( 'Error:  {1}\n'.format( st , e ) )
     
     
     def __init__(self , **kwargs ):
@@ -540,11 +778,14 @@ class ReadPlan( Screen ):
         ## TODO:  scroll back to top of page for new plan
         plans_app.current = 'read_plan'
         try:
-            url = 'https://www.grinnellplans.com/api/1/index.php?task=read'
+            url = api_urls[ 'read' ]
             response = session.post( url ,
-                                     data = { 'username': username } )
+                                     data = { 'username' : username } )
             json_response = None
-            if( response.status_code == 200 ):
+            if( response.status_code == requests.codes.ok ):
+                ##response_text = response.text
+                ##json_part = response_text[ response_text.find( '{' ): ]
+                ##json_response = json.loads( json_part )
                 json_response = response.json()
                 ##print( 'Encoding = {}'.format( response.encoding ) )
                 ##plan_body = response.text.encode( response.encoding )
@@ -605,7 +846,11 @@ class ScreenManagement( ScreenManager ):
 plans_app = Builder.load_file( "main.kv" )
 
 class GrinnellPlansApp(App):
-    __version__ = "17.52.12"
+
+    def initilize_global_dirs(self):
+        log_dir = os.path.join( App.get_running_app().user_data_dir , 'log' )
+        if( not os.path.exists( log_dir ) ):
+            os.makedirs( log_dir )
 
     def loadDefaultColorScheme( self ):
         ##if( not cookie_jar.exists( 'default_color_scheme' ) ):
@@ -636,6 +881,7 @@ class GrinnellPlansApp(App):
     
     def build(self):
         ##print( 'Screens:  {}'.format( plans_app.screens ) )
+        self.initilize_global_dirs()
         self.loadColorScheme()
         if( plans_app.screens[ 0 ].loadSavedSession() ):
             plans_app.current = 'landing_page'
