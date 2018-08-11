@@ -66,6 +66,13 @@ from kivy.storage.dictstore import DictStore
 
 from kivy.garden import iconfonts
 
+## Following this thread, we can use GL_MAX_TEXTURE_SIZE as our upper
+## bound for how large a plan can be in a given label before it needs
+## to be cut off and added to the next label.
+##   https://github.com/kivy/kivy/issues/2119
+from kivy.graphics.opengl import GL_MAX_TEXTURE_SIZE
+max_plan_size = 2 * GL_MAX_TEXTURE_SIZE
+
 #### Generate a local fontd file:
 ##   from https://github.com/kivy-garden/garden.iconfonts
 ##iconfonts.create_fontdict_file( 'resources/font-awesome.css' ,
@@ -332,7 +339,7 @@ def session_login( session , username , password , testing = False ):
 ########################################################################
 
 class LoginScreen( Screen ):
-    __version__ = "18.23.10"
+    __version__ = "18.32.0"
 
     def version( self , *args ):
         return self.__version__
@@ -668,6 +675,9 @@ class ReadPlan( Screen ):
                 plans_app.screens[ 3 ].ids.psuedo.text = plan_name
                 plans_app.screens[ 3 ].ids.last_login.text = last_login
                 plans_app.screens[ 3 ].ids.last_updated.text = last_updated
+                ## TODO - add additional text to a new label below to make it smooth
+                if( len( plan_body ) > max_plan_size ):
+                    plan_body = '{}...'.format( plan_body[ 0:( max_plan_size - 3 ) ] )
                 plans_app.screens[ 3 ].ids.plan.text = plan_body
                 ## If we got here from clicking the read button, then empty out the data
                 plans_app.screens[ 3 ].ids.finger.text = ''

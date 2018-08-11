@@ -1,3 +1,20 @@
+###########################################################################
+# This file is part of 'GrinnellPlans-kivy'.
+#
+# 'GrinnellPlans-kivy' is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# 'GrinnellPlans-kivy' is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with 'GrinnellPlans-kivy'.  If not, see <http://www.gnu.org/licenses/>.
+###########################################################################
+
 [app]
 
 # (str) Title of your application
@@ -124,13 +141,6 @@ android.sdk_path = /home/paul/Android/Sdk
 # not yet merged features.
 #android.branch = master
 
-# (str) OUYA Console category. Should be one of GAME or APP
-# If you leave this blank, OUYA support will not be enabled
-#android.ouya.category = GAME
-
-# (str) Filename of OUYA Console icon. It must be a 732x412 png image.
-#android.ouya.icon.filename = %(source.dir)s/data/ouya_icon.png
-
 # (str) XML file to include as an intent filters in <activity> tag
 #android.manifest.intent_filters =
 
@@ -139,10 +149,6 @@ android.sdk_path = /home/paul/Android/Sdk
 #android.add_libs_armeabi_v7a = libs/android-v7/*.so
 #android.add_libs_x86 = libs/android-x86/*.so
 #android.add_libs_mips = libs/android-mips/*.so
-
-# (bool) Indicate whether the screen should stay on
-# Don't forget to add the WAKE_LOCK permission if you set this to True
-#android.wakelock = False
 
 # (list) Android application meta-data to set (key=value format)
 #android.meta_data =
