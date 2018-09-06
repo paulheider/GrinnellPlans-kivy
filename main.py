@@ -332,7 +332,7 @@ def session_login( session , username , password , testing = False ):
 ########################################################################
 
 class LoginScreen( Screen ):
-    __version__ = "18.36.2"
+    __version__ = "18.36.3"
 
     def version( self , *args ):
         return self.__version__
@@ -634,7 +634,7 @@ class ReadPlan( Screen ):
             self.readTask( username )
 
     
-    def readFromRef( self , ref_string ):
+    def readFromRef( self , instance , ref_string ):
         planlove_matches = planlove_re.findall( ref_string )
         if( len( planlove_matches ) == 0 ):
             LLOOGG( 'readFromRef:  {} - generic url = {}'.format( this_line() , ref_string ) )
@@ -690,8 +690,7 @@ class ReadPlan( Screen ):
         tmp_label.bind( size = self.redraw_label ,
                         texture_size = self.redraw_label )
         ## TODO:  add on_long_press send to clipboard
-        ## TODO:  bind planlove
-        ##    on_ref_press: app.root.screens[ 3 ].readFromRef( args[ 1 ] )
+        tmp_label.bind( on_ref_press = self.readFromRef )
         tmp_label.texture_update()
         return( tmp_label )
     
