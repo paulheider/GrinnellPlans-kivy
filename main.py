@@ -693,7 +693,22 @@ class ReadPlan( Screen ):
         tmp_label.bind( on_ref_press = self.readFromRef )
         tmp_label.texture_update()
         return( tmp_label )
-    
+
+    def find_safe_ends( self , chunks , start , end ):
+        if( end - start == 0 ):
+            return None
+        chunk = '\n'.join( chunks[ start : end ] )
+        chunk_label = self.plan_content_template( chunk )
+        ##TODO -
+        ##from kivy.core.window import Window
+        ##print( 'Window.size = {}\ntexture_size[1] = {}'.format( Window.height ,
+        ##                                                        chunk_label.texture_size[ 1 ] ) )
+        if( chunk_label.texture_size[ 1 ] < 60000 ):
+            return( [ end ] )
+        else:
+            gap = int( ( end - start ) / 2 )
+            return( self.find_safe_ends( chunks , start , start + gap ) + self.find_safe_ends( chunks , start + gap , end ) )
+        
     def readTask( self , username ):
         global session
         for chunk_label in self.chunk_labels:
@@ -724,7 +739,10 @@ class ReadPlan( Screen ):
                 plans_app.screens[ 3 ].ids.last_login.text = last_login
                 plans_app.screens[ 3 ].ids.last_updated.text = last_updated
                 plan_chunks = plan_body.splitlines()
-                for chunk in plan_chunks:
+                safe_chunk_ends = self.find_safe_ends( plan_chunks , 0 , len( plan_chunks ) )
+                chunk_start = 0
+                for chunk_end in safe_chunk_ends:
+                    chunk = '\n'.join( plan_chunks[ chunk_start : chunk_end ] )
                     if( chunk == "" ):
                         chunk = " "
                     chunk_prefix = ''
