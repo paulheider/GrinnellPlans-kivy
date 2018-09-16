@@ -1,4 +1,3 @@
-#: import icon kivy.garden.iconfonts.icon
 
 ScreenManagement:
     ## TODO:  add transition screens
@@ -42,7 +41,8 @@ ScreenManagement:
             multiline: False
         Button:
             markup: True
-            text: "{}".format( icon( 'fa-sign-in' ) )
+            font_name: 'resources/fontawesome-webfont'
+            text: "{}".format( u'\uf090' )
             size_hint: 0.5,0.1
             pos_hint: {'center_x': 0.5 , 'top': (self.parent.height + 1*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
             on_press: root.logInTask( username.text , password.text )
@@ -133,7 +133,8 @@ ScreenManagement:
                 ## TODO:  find icon set
                 id: 'home_button'
                 markup: True
-                text: "{}".format( icon( 'fa-home' ) )
+                font_name: 'resources/fontawesome-webfont'
+                text: "{}".format( u'\uf015' )
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-0*(self.parent.width*0.75)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -150,7 +151,8 @@ ScreenManagement:
             Button:
                 id: 'autofinger_list_button'
                 markup: True
-                text: "{}".format( icon( 'fa-list-ol' ) )
+                font_name: 'resources/fontawesome-webfont'
+                text: "{}".format( u'\uf0cb' )
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-1*(self.parent.width*0.875)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -159,7 +161,7 @@ ScreenManagement:
             ## Button:
             ##     id: 'settings_button'
             ##     markup: True
-            ##     text: "{}".format( icon( 'fa-cog' ) )
+            ##     text: "{}".format( u'\uf013' )
             ##     disabled: True
             ##     size_hint: 0.75,None
             ##     height: self.width
@@ -170,7 +172,8 @@ ScreenManagement:
                 ## TODO:  add logout to API?
                 id: 'logout_button'
                 markup: True
-                text: "{}".format( icon( 'fa-sign-out' ) )
+                font_name: 'resources/fontawesome-webfont'
+                text: "{}".format( u'\uf08b' )
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (1*(self.parent.width)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -209,7 +212,8 @@ ScreenManagement:
                         id: username
                     Button:
                         markup: True
-                        text: "{}".format( icon( 'fa-comment-o' ) )
+                        font_name: 'resources/fontawesome-webfont'
+                        text: "{}".format( u'\uf075' )
                         size_hint_y: None
                         height: root.height * 0.08
                         on_release: app.root.screens[ 3 ].readFromFingerButton()
@@ -221,7 +225,8 @@ ScreenManagement:
                     Button:
                         disabled: True
                         markup: True
-                        text: "{}".format( icon( 'fa-search' ) )
+                        font_name: 'resources/fontawesome-webfont'
+                        text: "{}".format( u'\uf002' )
                         size_hint_y: None
                         height: root.height * 0.08
                         ##on_release: app.root.screens[ 3 ].searchFromFingerButton()
@@ -251,7 +256,8 @@ ScreenManagement:
             Button:
                 id: 'home_button'
                 markup: True
-                text: "{}".format( icon( 'fa-home' ) )
+                font_name: 'resources/fontawesome-webfont'
+                text: "{}".format( u'\uf015' )
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-0*(self.parent.width*0.75)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -268,7 +274,8 @@ ScreenManagement:
             Button:
                 id: 'autofinger_list_button'
                 markup: True
-                text: "{}".format( icon( 'fa-list-ol' ) )
+                font_name: 'resources/fontawesome-webfont'
+                text: "{}".format( u'\uf0cb' )
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (self.parent.height-1*(self.parent.width*0.875)-(self.parent.width*0.25)/2)/self.parent.height }
@@ -288,7 +295,8 @@ ScreenManagement:
                 ## TODO:  add logout to API?
                 id: 'logout_button'
                 markup: True
-                text: "{}".format( icon( 'fa-sign-out' ) )
+                font_name: 'resources/fontawesome-webfont'
+                text: "{}".format( u'\uf08b' )
                 size_hint: 0.75,None
                 height: self.width
                 pos_hint: {'center_x': 0.5, 'top': (1*(self.parent.width)-(self.parent.width*0.25)/2)/self.parent.height }

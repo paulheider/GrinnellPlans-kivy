@@ -64,16 +64,6 @@ from kivy.graphics import Color
 from kivy.storage.jsonstore import JsonStore
 from kivy.storage.dictstore import DictStore
 
-from kivy.garden import iconfonts
-
-#### Generate a local fontd file:
-##   from https://github.com/kivy-garden/garden.iconfonts
-##iconfonts.create_fontdict_file( 'resources/font-awesome.css' ,
-##                                'resources/font-awesome.fontd' )
-iconfonts.register( 'default_font' ,
-                    'resources/fontawesome-webfont.ttf' ,
-                    'resources/font-awesome.fontd' )
-
 def this_line():
     callerframerecord = inspect.stack()[1]
     ## 0 represents this line
@@ -332,7 +322,7 @@ def session_login( session , username , password , testing = False ):
 ########################################################################
 
 class LoginScreen( Screen ):
-    __version__ = "18.36.3"
+    __version__ = "18.37.0"
 
     def version( self , *args ):
         return self.__version__
