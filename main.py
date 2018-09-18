@@ -7,7 +7,7 @@ sys.setdefaultencoding('utf8')
 import os
 
 ## Allow labels to have background colors
-#import LabelB
+from LabelB import LabelB
 
 import inspect
 
@@ -63,16 +63,6 @@ from kivy.graphics import Color
 
 from kivy.storage.jsonstore import JsonStore
 from kivy.storage.dictstore import DictStore
-
-from kivy.garden import iconfonts
-
-#### Generate a local fontd file:
-##   from https://github.com/kivy-garden/garden.iconfonts
-##iconfonts.create_fontdict_file( 'resources/font-awesome.css' ,
-##                                'resources/font-awesome.fontd' )
-iconfonts.register( 'default_font' ,
-                    'resources/fontawesome-webfont.ttf' ,
-                    'resources/font-awesome.fontd' )
 
 def this_line():
     callerframerecord = inspect.stack()[1]
@@ -332,7 +322,7 @@ def session_login( session , username , password , testing = False ):
 ########################################################################
 
 class LoginScreen( Screen ):
-    __version__ = "18.23.10"
+    __version__ = "18.38.0"
 
     def version( self , *args ):
         return self.__version__
@@ -569,7 +559,11 @@ class LandingPage( Screen ):
 
 class ReadPlan( Screen ):
     ## TODO:  add a button to flag plan for comment/later and see all flagged
-    
+
+    chunk_labels = []
+    tag_start_stack = []
+    tag_end_stack = []
+        
     def on_enter( self ):
         pass
     
@@ -630,7 +624,7 @@ class ReadPlan( Screen ):
             self.readTask( username )
 
     
-    def readFromRef( self , ref_string ):
+    def readFromRef( self , instance , ref_string ):
         planlove_matches = planlove_re.findall( ref_string )
         if( len( planlove_matches ) == 0 ):
             LLOOGG( 'readFromRef:  {} - generic url = {}'.format( this_line() , ref_string ) )
@@ -639,11 +633,77 @@ class ReadPlan( Screen ):
             username = planlove_matches[ 0 ]
             LLOOGG( 'readFromRef:  {} - {} from {}'.format( this_line() , username , ref_string ) )
             self.readTask( username )
+
+    def extract_open_tags( self , text ):
+        s = re.split( '(\[.*?\])' , text )
+        s = [ x for x in s if x != '' ]
+        for chunk in s:
+            if( chunk.startswith( '[/' ) and
+                chunk.endswith( ']' ) ):
+                self.tag_start_stack.pop()
+                self.tag_end_stack.pop()
+            elif( chunk.startswith( '[' ) and
+                chunk.endswith( ']' ) ):
+                self.tag_start_stack.append( chunk )
+                if( chunk.startswith( '[anchor' ) ):
+                    ## TODO - treat closing anchors as special
+                    self.tag_end_stack.append( '[/anchor]' )
+                elif( chunk.startswith( '[color' ) ):
+                    self.tag_end_stack.append( '[/color]' )
+                elif( chunk.startswith( '[font' ) ):
+                    self.tag_end_stack.append( '[/font]' )
+                elif( chunk.startswith( '[ref' ) ):
+                    ## TODO - treat closing ref as special
+                    self.tag_end_stack.append( '[/ref]' )
+                elif( chunk.startswith( '[size' ) ):
+                    self.tag_end_stack.append( '[/size]' )
+                else:
+                    self.tag_end_stack.append( '{}/{}'.format( chunk[ 0 ] ,
+                                                               chunk[ 1: ] ) )
+
+    def redraw_label( self , instance , value ):
+        instance.text_size = ( instance.width, None )
+        instance.height = instance.texture_size[1]
+
     
-    
+    def plan_content_template( self , content = 'Hello World&br;' ):
+        ## TODO - use a separate color pair for the plan content labels
+        tmp_label = LabelB( color = cookie_jar.get( 'color_scheme' )[ 'content_fg' ] ,
+                            bcolor = cookie_jar.get( 'color_scheme' )[ 'background' ] ,
+                            halign = 'left' ,
+                            valign = 'top' ,
+                            markup = True ,
+                            text = content )
+        tmp_label.size_hint_y = None
+        tmp_label.text_size = ( tmp_label.width , None )
+        tmp_label.height = tmp_label.texture_size[ 1 ]
+        tmp_label.bind( size = self.redraw_label ,
+                        texture_size = self.redraw_label )
+        ## TODO:  add on_long_press send to clipboard
+        tmp_label.bind( on_ref_press = self.readFromRef )
+        tmp_label.texture_update()
+        return( tmp_label )
+
+    def find_safe_ends( self , chunks , start , end ):
+        if( end - start == 0 ):
+            return None
+        chunk = '\n'.join( chunks[ start : end ] )
+        chunk_label = self.plan_content_template( chunk )
+        ##TODO -
+        ##from kivy.core.window import Window
+        ##print( 'Window.size = {}\ntexture_size[1] = {}'.format( Window.height ,
+        ##                                                        chunk_label.texture_size[ 1 ] ) )
+        if( chunk_label.texture_size[ 1 ] < 60000 ):
+            return( [ end ] )
+        else:
+            gap = int( ( end - start ) / 2 )
+            return( self.find_safe_ends( chunks , start , start + gap ) + self.find_safe_ends( chunks , start + gap , end ) )
+        
     def readTask( self , username ):
         global session
-        ## TODO:  scroll back to top of page for new plan
+        for chunk_label in self.chunk_labels:
+            self.ids.plan_grid.remove_widget( chunk_label )
+        self.chunk_labels = []
         plans_app.current = 'read_plan'
         try:
             url = api_urls[ 'read' ]
@@ -668,7 +728,29 @@ class ReadPlan( Screen ):
                 plans_app.screens[ 3 ].ids.psuedo.text = plan_name
                 plans_app.screens[ 3 ].ids.last_login.text = last_login
                 plans_app.screens[ 3 ].ids.last_updated.text = last_updated
-                plans_app.screens[ 3 ].ids.plan.text = plan_body
+                plan_chunks = plan_body.splitlines()
+                safe_chunk_ends = self.find_safe_ends( plan_chunks , 0 , len( plan_chunks ) )
+                chunk_start = 0
+                for chunk_end in safe_chunk_ends:
+                    chunk = '\n'.join( plan_chunks[ chunk_start : chunk_end ] )
+                    if( chunk == "" ):
+                        chunk = " "
+                    chunk_prefix = ''
+                    for tag in reversed( self.tag_start_stack ):
+                        chunk_prefix  = '{}{}'.format( tag ,
+                                                       chunk_prefix )
+                    self.extract_open_tags( chunk )
+                    chunk_suffix = ''
+                    for tag in reversed( self.tag_end_stack ):
+                        chunk_suffix = '{}{}'.format( chunk_suffix ,
+                                                      tag )
+                    chunk = '{}{}{}'.format( chunk_prefix ,
+                                             chunk ,
+                                             chunk_suffix )
+                    chunk_label = self.plan_content_template( chunk )
+                    self.ids.plan_grid.add_widget( chunk_label )
+                    self.chunk_labels.append( chunk_label )
+                ##
                 ## If we got here from clicking the read button, then empty out the data
                 plans_app.screens[ 3 ].ids.finger.text = ''
                 ## and move the scrollview back to the top of the page
@@ -693,13 +775,11 @@ class ReadPlan( Screen ):
                 if( type( widget ) == type( Button() ) ):
                     widget.background_color = cookie_jar.get( 'color_scheme' )[ 'button_bg' ]
                     widget.color = cookie_jar.get( 'color_scheme' )[ 'button_fg' ]
-                elif( type( widget ) == type( Label() ) ):
+                elif( type( widget ) == type( Label() ) or
+                      type( widget ) == type( LabelB() ) ):
                     widget.background_color = cookie_jar.get( 'color_scheme' )[ 'label_bg' ]
                     widget.color = cookie_jar.get( 'color_scheme' )[ 'label_fg' ]
-        self.ids.plan.color = cookie_jar.get( 'color_scheme' )[ 'content_fg' ]
-        ## TODO - set different background color for plan content label
-        self.ids.plan.background_color = [ 1 , 1 , 1 , 1 ]
-
+        
 
 class EditPlan( Screen ):
     pass
