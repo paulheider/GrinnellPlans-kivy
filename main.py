@@ -322,7 +322,7 @@ def session_login( session , username , password , testing = False ):
 ########################################################################
 
 class LoginScreen( Screen ):
-    __version__ = "18.38.0"
+    __version__ = "18.38.1"
 
     def version( self , *args ):
         return self.__version__
@@ -693,7 +693,7 @@ class ReadPlan( Screen ):
         ##from kivy.core.window import Window
         ##print( 'Window.size = {}\ntexture_size[1] = {}'.format( Window.height ,
         ##                                                        chunk_label.texture_size[ 1 ] ) )
-        if( chunk_label.texture_size[ 1 ] < 60000 ):
+        if( chunk_label.texture_size[ 1 ] < 30000 ):
             return( [ end ] )
         else:
             gap = int( ( end - start ) / 2 )
