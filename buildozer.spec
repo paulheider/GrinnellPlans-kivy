@@ -24,7 +24,7 @@ title = Grinnell Plans
 package.name = grinnellplans
 
 # (str) Package domain (needed for android/ios packaging)
-package.domain = com.github.paulheider.alpha
+package.domain = com.github.paulheider
 
 # (str) Source code where the main.py live
 source.dir = .

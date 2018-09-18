@@ -322,7 +322,7 @@ def session_login( session , username , password , testing = False ):
 ########################################################################
 
 class LoginScreen( Screen ):
-    __version__ = "18.37.0"
+    __version__ = "18.38.0"
 
     def version( self , *args ):
         return self.__version__
