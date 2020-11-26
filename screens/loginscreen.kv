@@ -1,0 +1,56 @@
+<LoginScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+                                                                    
+    ## TODO:  add logo to bottom of screen
+    name: 'login'
+    title: 'Login'
+    FloatLayout:
+        size_hint: 1,1
+        Label:
+            text: 'User Name'
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width - 5 - 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width , 'top': (self.parent.height + 3*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+        TextInput:
+            id: username
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 3*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+            multiline: False
+        Label:
+            text: 'Password'
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width - 5 - 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 2*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+        TextInput:
+            id: password
+            password: True
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 2*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+            multiline: False
+        Button:
+            markup: True
+            font_name: 'resources/fontawesome-webfont'
+            text: "{}".format( u'\uf090' )
+            size_hint: 0.5,0.1
+            pos_hint: {'center_x': 0.5 , 'top': (self.parent.height + 1*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+            on_press: root.logInTask( username.text , password.text )
+        Label:
+            markup: True
+            halign: 'center'
+            text: '[b]Version:[/b]  ' + root.version()
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width - 5 - 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height - 0*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+        Button:
+            markup: True
+            text: "Clear Session"
+            ## TODO - align button widths with username/password fields
+            size_hint: 0.25,0.1
+            pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width , 'top': (self.parent.height - 0*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+            on_press: root.endSession()
+        ## TODO: add guest access
+        ## Button:
+        ##     text: 'Guest'
+        ##     size_hint: 0.25,0.1
+        ##     pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 1*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+        ##     on_press: root.guestAuth( username.text , password.text )
