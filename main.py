@@ -3,6 +3,9 @@ import sys
 sys.path.append("/".join(x for x in __file__.split("/")[:-1]))
 
 import os
+import re
+import time
+import datetime
 
 import kivy
 kivy.require( '2.0.0' )
@@ -15,62 +18,14 @@ from kivy.utils import platform
 if( platform == 'linux' ):
     Window.size = ( 600 , 350 )
 
-## Allow labels to have background colors
-from LabelB import LabelB
-
-import inspect
-
-import time
-import datetime
-import requests
-
-from collections import deque
-
-try:
-    import cPickle as pickle
-except ImportError:
-    import pickle
-
-import re
-
-import webbrowser
-
 ## TODO:  integrate a config file
 ##from kivy.config import Config
 
-from kivy.lang import Builder
-from kivy.uix.popup import Popup
-from kivy.uix.progressbar import ProgressBar
-from kivy.factory import Factory
+# from kivy.clock import Clock
 
-from kivy.clock import Clock
+# from kivy.graphics import Color
 
-from kivy.properties import ObjectProperty
-
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
-
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.button import Button
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.scrollview import ScrollView
-from kivy.animation import Animation
-
-from kivy.utils import escape_markup
-from kivy.graphics import Color
-
-from kivy.storage.jsonstore import JsonStore
-from kivy.storage.dictstore import DictStore
-
-from functools import partial
-
-def this_line():
-    callerframerecord = inspect.stack()[1]
-    ## 0 represents this line
-    ## 1 represents line at caller
-    frame = callerframerecord[0]
-    info = inspect.getframeinfo(frame)
-    return info.lineno
+# from kivy.storage.dictstore import DictStore
 
 ## We use a very strict regex pattern because of how we treat
 ## planlove as a special form of URL to be parsed
@@ -100,7 +55,7 @@ log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
 ########################################################################
 
 class GrinnellPlansApp(App):
-    __version__ = "20.48.0"
+    __version__ = '20.48.1'
     
     cookie_jar = None
     session = None
@@ -112,32 +67,33 @@ class GrinnellPlansApp(App):
 
     def loadDefaultColorScheme( self ):
         ##if( not cookie_jar.exists( 'default_color_scheme' ) ):
-        self.cookie_jar.put( 'default_color_scheme' ,
-                        background = [ 1 , 1 , 1 , 1 ] ,
-                        ## rgb(149,165,166)
-                        button_bg = [ .58431372549019607843 , .64705882352941176470 , .65098039215686274509 , 1 ] ,
-                        button_fg = [ 1 , 1 , 1 , 1 ] ,
-                        label_bg = [ 0.5 , 0.5 , 0.5 , 1 ] ,
-                        label_fg = [ 0 , 0 , 0 , 1 ] ,
-                        content_fg = [ 0 , 0 , 0 , 1 ] ,
-                        planlove_fg = '0000ff' ,
-                        link_fg = '0000ff' )
+        # self.cookie_jar.put( 'default_color_scheme' ,
+        #                 background = [ 1 , 1 , 1 , 1 ] ,
+        #                 ## rgb(149,165,166)
+        #                 button_bg = [ .58431372549019607843 , .64705882352941176470 , .65098039215686274509 , 1 ] ,
+        #                 button_fg = [ 1 , 1 , 1 , 1 ] ,
+        #                 label_bg = [ 0.5 , 0.5 , 0.5 , 1 ] ,
+        #                 label_fg = [ 0 , 0 , 0 , 1 ] ,
+        #                 content_fg = [ 0 , 0 , 0 , 1 ] ,
+        #                 planlove_fg = '0000ff' ,
+        #                 link_fg = '0000ff' )
+        pass
     
     
     def loadColorScheme( self ):
         self.loadDefaultColorScheme()
-        self.cookie_jar.put( 'color_scheme' ,
-                        background = self.cookie_jar.get( 'default_color_scheme' )[ 'background' ] ,
-                        button_bg = self.cookie_jar.get( 'default_color_scheme' )[ 'button_bg' ] ,
-                        button_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'button_fg' ] ,
-                        label_bg = self.cookie_jar.get( 'default_color_scheme' )[ 'label_bg' ] ,
-                        label_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'label_fg' ] ,
-                        content_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'content_fg' ] ,
-                        planlove_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'planlove_fg' ] ,
-                        link_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'link_fg' ] )
+        # self.cookie_jar.put( 'color_scheme' ,
+        #                 background = self.cookie_jar.get( 'default_color_scheme' )[ 'background' ] ,
+        #                 button_bg = self.cookie_jar.get( 'default_color_scheme' )[ 'button_bg' ] ,
+        #                 button_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'button_fg' ] ,
+        #                 label_bg = self.cookie_jar.get( 'default_color_scheme' )[ 'label_bg' ] ,
+        #                 label_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'label_fg' ] ,
+        #                 content_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'content_fg' ] ,
+        #                 planlove_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'planlove_fg' ] ,
+        #                 link_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'link_fg' ] )
     
     def on_start( self ):
-        self.cookie_jar = DictStore( 'cookies.dat' )
+        ##self.cookie_jar = DictStore( 'cookies.dat' )
         self.initilize_global_dirs()
         self.loadColorScheme()
         
