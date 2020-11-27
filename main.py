@@ -13,6 +13,8 @@ kivy.require( '2.0.0' )
 from kivy.app import App
 from kivy.logger import Logger
 
+from kivymd.app import MDApp
+
 from kivy.core.window import Window
 from kivy.utils import platform
 if( platform == 'linux' ):
@@ -54,8 +56,8 @@ log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
 ##
 ########################################################################
 
-class GrinnellPlansApp(App):
-    __version__ = '20.48.1'
+class GrinnellPlansApp( MDApp ):
+    __version__ = '20.48.3'
     
     cookie_jar = None
     session = None
