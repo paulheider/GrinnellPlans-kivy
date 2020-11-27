@@ -1,0 +1,29 @@
+<ReadPlanScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'
+        Widget:
+            size_hint: None, None
+            height: app.notch_height
+
+        MDToolbar:
+            id: toolbar
+            title: '(username)'
+            elevation: 0
+            md_bg_color: [ 0.3 , 0.8 , 1 , .5 ]
+
+        ScrollView:
+            do_scroll_x: False
+            do_scroll_y: True
+        
+            MDLabel:
+                id: plan
+                text: '(plan)'
+                size_hint_y: None
+                height: self.texture_size[ 1 ]
+                text_size: self.width , None
+                padding: 10, 10

@@ -243,7 +243,7 @@ class LoginScreen( Screen ):
                     key , val = cookie.split( '=' )
                 except ValueError:
                     key = cookie
-                if( key == 'PHPSESSIONID' ):
+                if( key == 'PHPSESSID' ):
                     app.session_id = val
                     break
             app.autofinger_list = resp_dict[ 'autofingerList' ]

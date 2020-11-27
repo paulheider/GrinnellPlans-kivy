@@ -47,7 +47,7 @@ log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
 ########################################################################
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.48.5'
+    __version__ = '20.48.6'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     
