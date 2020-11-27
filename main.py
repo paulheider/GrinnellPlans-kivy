@@ -20,6 +20,8 @@ from kivy.utils import platform
 if( platform == 'linux' ):
     Window.size = ( 600 , 350 )
 
+from kivy.properties import NumericProperty
+
 ## TODO:  integrate a config file
 ##from kivy.config import Config
 
@@ -45,8 +47,10 @@ log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
 ########################################################################
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.48.4'
+    __version__ = '20.48.5'
 
+    notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
+    
     ## TODO - add a if( debug mode flag ): here?
     ##        or maybe make this a toggle on the home screen
     ##        to use an alternate backend

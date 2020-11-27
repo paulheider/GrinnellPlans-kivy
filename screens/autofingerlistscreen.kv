@@ -1,0 +1,50 @@
+<PlanItem>:
+    username: ""
+
+<AutofingerListScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Widget:
+            size_hint: None, None
+            height: app.notch_height
+        # BoxLayout:
+        #     orientation: 'horizontal'
+        #     MDLabel:
+        #         text: 'Level 1'
+        #         halign: 'center'
+        #         theme_text_color: "Primary"
+        #     MDLabel:
+        #         text: 'Level 2'
+        #         halign: 'center'
+        #         theme_text_color: "Custom"
+        #         text_color: 0, 0, 1, 1
+        #     MDLabel:
+        #         text: 'Level 3'
+        #         halign: 'center'
+        #         elevation: 0
+        #         theme_text_color: "Secondary"
+        MDToolbar:
+            id: toolbar
+            title: 'Autofinger Lists'
+            elevation: 0
+            md_bg_color: [ 1 , .3 , .8 , .5 ]
+        BoxLayout:
+            orientation: 'horizontal'
+            ScrollView:
+                id: level1_container
+                MDList:
+                    id: level1_list
+                    size_hint_y: None
+                    spacing: dp(15)
+            ScrollView:
+                id: level2_container
+                MDList:
+                    id: level2_list
+                    size_hint_y: None
+                    spacing: dp(15)
+            ScrollView:
+                id: level3_container
+                MDList:
+                    id: level3_list
+                    size_hint_y: None
+                    spacing: dp(15)

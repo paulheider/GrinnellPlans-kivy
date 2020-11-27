@@ -247,9 +247,9 @@ class LoginScreen( Screen ):
                     app.session_id = val
                     break
             app.autofinger_list = resp_dict[ 'autofingerList' ]
-            ##app.root.ids.screen_manager.current = "lobby_screen"
+            app.root.ids.screen_manager.current = "autofinger_list_screen"
         else:
-            Logger.error( 'Login: {}'.format( resp[ 'message' ] ) )
+            Logger.error( 'Login: {}'.format( resp_dict[ 'message' ] ) )
             return
         #         Logger.info( "Staging: {} - {}".format( this_line() , 'response generated' ) )
         #         if( testing ):
