@@ -35,18 +35,6 @@ if( platform == 'linux' ):
 planlove_re = re.compile( "^read\.php\?searchname=([a-zA-Z0-9]+)$" )
 autofinger_level_re = re.compile( "^level_[0-9]$" )
 
-## TODO - add a if( debug mode flag ): here?
-##        or maybe make this a toggle on the home screen
-##        to use an alternate backend
-base_url = 'https://www.grinnellplans.com'
-
-api_urls = { 'autofinger' : '{}/api/1/index.php?task={}'.format( base_url , 'autofingerlist' ) ,
-             'read'       : '{}/api/1/index.php?task={}'.format( base_url , 'read' ) ,
-             'login'      : '{}/api/1/index.php?task={}'.format( base_url , 'login' ) }
-
-
-autofinger_list = {}
-
 now_time = datetime.datetime.now()
 now_stamp = now_time.strftime( "%Y-%m-%d %H:%M:%S" )
 now_filesafe = now_time.strftime( "%Y-%m-%d_%H%M%S" )
@@ -57,11 +45,22 @@ log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
 ########################################################################
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.48.3'
+    __version__ = '20.48.4'
+
+    ## TODO - add a if( debug mode flag ): here?
+    ##        or maybe make this a toggle on the home screen
+    ##        to use an alternate backend
+    base_url = 'https://www.grinnellplans.com'
+    api_urls = { 'autofinger' : '{}/api/1/index.php?task={}'.format( base_url , 'autofingerlist' ) ,
+                 'read'       : '{}/api/1/index.php?task={}'.format( base_url , 'read' ) ,
+                 'login'      : '{}/api/1/index.php?task={}'.format( base_url , 'login' ) }
     
     cookie_jar = None
+    session_id = None
     session = None
 
+    autofinger_list = {}
+    
     def initilize_global_dirs(self):
         log_dir = os.path.join( App.get_running_app().user_data_dir , 'log' )
         if( not os.path.exists( log_dir ) ):

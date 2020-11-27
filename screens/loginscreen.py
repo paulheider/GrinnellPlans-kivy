@@ -12,6 +12,10 @@ from kivymd.uix.button import MDRectangleFlatButton
 from kivymd.uix.textfield import MDTextFieldRect
 from kivymd.icon_definitions import md_icons
 
+from kivy.network.urlrequest import UrlRequest
+import urllib
+import simplejson as json
+
 # from kivy.storage.dictstore import DictStore
 
 ########################################################################
@@ -184,11 +188,114 @@ class LoginScreen( Screen ):
         pass
     
     def logInTask( self , username , password ):
-        # plans_app.current = 'landing_page'
-        # global session
-        # Logger.info( "Staging: {} - {}h {}w".format( this_line() ,
-        #                                         plans_app.height ,
-        #                                         plans_app.width ) )
+        Logger.info( 'Login: verifying username and password' )
+        app = App.get_running_app()
+        if( username == '' ):
+            Logger.error( 'Login: username must not be empty.' )
+            return
+        elif( password == '' ):
+            Logger.error( 'Login: password must not be empty.' )
+            return
+        params = urllib.parse.urlencode( { 'username' : username ,
+                                           'password' : password } )
+        headers = { 'Content-type' : 'application/x-www-form-urlencoded',
+                    'Accept' : 'text/plain' }
+        req = UrlRequest( app.api_urls[ 'login' ] ,
+                          on_success = self.login_success ,
+                          on_failure = self.login_failure ,
+                          on_error = self.login_error ,
+                          req_body  = params ,
+                          req_headers = headers )
+        ## TODO - start login animation
+
+    def login_failure( self , req , resp ):
+        Logger.info( 'Login: failed login' )
+        Logger.info( 'Login: req = {}'.format( req ) )
+        Logger.info( 'Login: resp = {}'.format( resp ) )
+
+    def login_error( self , req , resp ):
+        Logger.info( 'Login: error login' )
+        Logger.info( 'Login: req = {}'.format( req ) )
+        Logger.info( 'Login: resp = {}'.format( resp ) )
+
+    def login_success( self , req , resp ):
+        Logger.info( 'Login: successful login' )
+        ## Valid responses:
+        ## - { "message" : "Invalid username or password." ,
+        ##     "success" : false }
+        ## - { "message" : "" ,
+        ##     "success" : true ,
+        ##     "autofingerList" : [
+        ##        { "level" : "1" ,
+        ##          "usernames" : [ ... ] } ,
+        ##        { "level" : "2" ,
+        ##          "usernames" : [ ... ] } ,
+        ##        { "level" : "3" ,
+        ##          "usernames" : [ ... ] } ] }
+        resp_dict = json.loads( resp )
+        if( resp_dict[ 'success' ] ):
+            app = App.get_running_app()
+            cookie_str = req.resp_headers[ 'Set-Cookie' ]
+            cookies = cookie_str.split( ';' )
+            for cookie in cookies:
+                cookie = cookie.strip()
+                try:
+                    key , val = cookie.split( '=' )
+                except ValueError:
+                    key = cookie
+                if( key == 'PHPSESSIONID' ):
+                    app.session_id = val
+                    break
+            app.autofinger_list = resp_dict[ 'autofingerList' ]
+            ##app.root.ids.screen_manager.current = "lobby_screen"
+        else:
+            Logger.error( 'Login: {}'.format( resp[ 'message' ] ) )
+            return
+        #         Logger.info( "Staging: {} - {}".format( this_line() , 'response generated' ) )
+        #         if( testing ):
+        #             Logger.info( '{}'.format( response ) )
+        #             Logger.info( 'Staging: Status Code = {}'.format( response.status_code ) )
+        #             Logger.info( 'Headers = {}'.format( response.headers ) )
+        #             Logger.info( 'Text = {}'.format( response.text ) )
+        #         if( response.status_code == requests.codes.ok ):
+        #             ##
+        #             json_response = response.json()
+        #             response.close()
+        #             json_success = json_response[ 'success' ]
+        #             json_message = json_response[ 'message' ]
+        #             if( testing ):
+        #                 Logger.info( 'Staging: JSON Success = {}'.format( json_success ) )
+        #                 Logger.info( 'Staging: JSON Message = {}'.format( json_message ) )
+        #             if( json_success ):
+        #                 if( testing ):
+        #                     print( '{} - {}'.format( this_line() , json_response ) )
+        #                 ## TODO - remember the SessionID cookie?
+        #                 #jar = response.cookies
+        #                 ##Logger.info( '{}'.format( jar[ 'Cookie PHPSESSID' ] ) )
+        #                 if( testing ):
+        #                     Logger.info( '{}'.format( jar ) )
+        #                 ## TODO - if remember username is checked, then...
+        #                 app.cookie_jar.put( 'user_name' ,
+        #                                 username = username )
+        #                 ## TODO - if remember password is checked, then...
+        #                 ##cookie_jar.put( 'user_pass' ,
+        #                 ##                passwd = password )
+        #                 Logger.info( 'Staging: {} - Logged in.  Checking plan...'.format( this_line() ) )
+        #                 with open('session.dat', 'w') as fp:
+        #                     ## TK
+        #                     1##pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
+        #                     ##             fp )
+        #                 return( True , session )
+        #             else:
+        #                 Logger.info( 'Warning: ' +
+        #                         'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
+        #                 return( False , session )
+        #         else:
+        #             Logger.info( 'Error: Failed to log in (Status Code = {})'.format( response.status_code ) )
+        #             return( False , session )
+        #     except Exception as e:
+        #         st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
+        #         Logger.info( 'Error:  {1}\n'.format( st , e ) )
         # try:
         #     ( successful_login , session ) = \
         #       session_login( session , username , password )
@@ -211,7 +318,7 @@ class LoginScreen( Screen ):
         # except Exception as e:
         #     st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
         #     Logger.info( 'Error:  {1}\n'.format( st , e ) )
-        pass
+
 
     def __init__(self , **kwargs ):
         super(LoginScreen, self).__init__(**kwargs)
