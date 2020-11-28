@@ -18,9 +18,14 @@ from kivymd.app import MDApp
 from kivy.core.window import Window
 from kivy.utils import platform
 if( platform == 'linux' ):
-    Window.size = ( 600 , 350 )
+    ##Window.size = ( 600 , 350 )
+    Window.size = ( 350 , 600 )
 
 from kivy.properties import NumericProperty
+
+from kivy.network.urlrequest import UrlRequest
+import urllib
+import simplejson as json
 
 ## TODO:  integrate a config file
 ##from kivy.config import Config
@@ -47,7 +52,7 @@ log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
 ########################################################################
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.48.6'
+    __version__ = '20.48.13'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     
@@ -61,9 +66,29 @@ class GrinnellPlansApp( MDApp ):
     
     cookie_jar = None
     session_id = None
-    session = None
+    session_file = None
 
+    username = ""
     autofinger_list = {}
+
+    def rememberPlan( self ):
+        pass
+
+    def showAutofingerList( self ):
+        params = urllib.parse.urlencode( { 'username' : self.username } )
+        headers = { 'Content-type' : 'application/x-www-form-urlencoded',
+                    'Accept' : 'text/plain' ,
+                    'Cookie' : 'PHPSESSID={}'.format( self.session_id ) }
+        req = UrlRequest( self.api_urls[ 'autofinger' ] ,
+                          on_success = self.root.ids.login_screen.restore_session_success ,
+                          on_failure = self.root.ids.login_screen.restore_session_failure ,
+                          on_error = self.root.ids.login_screen.restore_session_error ,
+                          req_body  = params ,
+                          req_headers = headers )
+
+
+    def showSearch( self ):
+        pass
     
     def initilize_global_dirs(self):
         log_dir = os.path.join( App.get_running_app().user_data_dir , 'log' )

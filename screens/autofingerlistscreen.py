@@ -30,6 +30,9 @@ class AutofingerListScreen( Screen ):
     def on_enter( self ):
         app = App.get_running_app()
         ## TODO - add loading animation
+        self.ids.level1_list.clear_widgets()
+        self.ids.level2_list.clear_widgets()
+        self.ids.level3_list.clear_widgets()
         for af_level in app.autofinger_list:
             if( af_level[ 'level' ] == '1' ):
                 for username in af_level[ 'usernames' ]:

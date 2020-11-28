@@ -1,3 +1,5 @@
+import os
+
 from kivy.app import App
 from kivy.logger import Logger
 
@@ -16,115 +18,11 @@ from kivy.network.urlrequest import UrlRequest
 import urllib
 import simplejson as json
 
-# from kivy.storage.dictstore import DictStore
-
 ########################################################################
 ##
 ########################################################################
 
 ## TODO:  add remember username/password button
-
-# def get_json_list( session , username = None , testing = False ):
-#     if( username == None ):
-#         app = App.get_running_app()
-#         try:
-#             username = app.cookie_jar.get( 'user_name' )[ 'username' ]
-#         except Exception as e:
-#             st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-#             Logger.info( 'Error:  Unable to extract username from cookie jar - {1}\n'.format( st , e ) )
-#             return None
-#     ##
-#     try:
-#         url = api_urls[ 'autofinger' ]
-#         response = session.post( url ,
-#                                  data = { 'username' : username } )
-#         if( testing ):
-#             Logger.info( 'Staging: Status Code = {}'.format( response.status_code ) )
-#         if( response.status_code == 200 ):
-#             json_response = response.json()
-#             response.close()
-#             json_message = json_response[ 'message' ]
-#             json_success = json_response[ 'success' ]
-#             if( testing ):
-#                 Logger.info( 'Staging: JSON Response = {}'.format( json_response ) )
-#                 Logger.info( 'Staging: JSON Success = {}'.format( json_success ) )
-#                 Logger.info( 'Staging: JSON Message = {}'.format( json_message ) )
-#             if( json_success ):
-#                 json_list = json_response[ 'autofingerList' ]
-#                 return json_list
-#             else:
-#                 return None
-#         else:
-#             ## Don't forget to close the response for good housekeeping
-#             response.close()
-#             return None
-#     except Exception as e:
-#         st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-#         Logger.info( 'Error: {1}'.format( st , e ) )
-#     return None
-
-# def session_login( session , username , password , testing = False ):
-#     app = App.get_running_app()
-#     try:
-#         if( username == '' ):
-#             Logger.info( 'Error: Username must not be empty.' )
-#             return( False , session )
-#         elif( password == '' ):
-#             Logger.info( 'Error: Password must not be empty.' )
-#             return( False , session )
-#         Logger.info( "Staging: {} - {}".format( this_line() , api_urls[ 'login' ] ) )
-#         session = requests.Session()
-#         Logger.info( "Staging: {} - {}".format( this_line() , 'session created' ) )
-#         response = session.post( api_urls[ 'login' ] ,
-#                                  data = { 'username' : username ,
-#                                           'password' : password } )
-#         Logger.info( "Staging: {} - {}".format( this_line() , 'response generated' ) )
-#         if( testing ):
-#             Logger.info( '{}'.format( response ) )
-#             Logger.info( 'Staging: Status Code = {}'.format( response.status_code ) )
-#             Logger.info( 'Headers = {}'.format( response.headers ) )
-#             Logger.info( 'Text = {}'.format( response.text ) )
-#         if( response.status_code == requests.codes.ok ):
-#             ##
-#             json_response = response.json()
-#             response.close()
-#             json_success = json_response[ 'success' ]
-#             json_message = json_response[ 'message' ]
-#             if( testing ):
-#                 Logger.info( 'Staging: JSON Success = {}'.format( json_success ) )
-#                 Logger.info( 'Staging: JSON Message = {}'.format( json_message ) )
-#             if( json_success ):
-#                 if( testing ):
-#                     print( '{} - {}'.format( this_line() , json_response ) )
-#                 ## TODO - remember the SessionID cookie?
-#                 #jar = response.cookies
-#                 ##Logger.info( '{}'.format( jar[ 'Cookie PHPSESSID' ] ) )
-#                 if( testing ):
-#                     Logger.info( '{}'.format( jar ) )
-#                 ## TODO - if remember username is checked, then...
-#                 app.cookie_jar.put( 'user_name' ,
-#                                 username = username )
-#                 ## TODO - if remember password is checked, then...
-#                 ##cookie_jar.put( 'user_pass' ,
-#                 ##                passwd = password )
-#                 Logger.info( 'Staging: {} - Logged in.  Checking plan...'.format( this_line() ) )
-#                 with open('session.dat', 'w') as fp:
-#                     ## TK
-#                     1##pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
-#                     ##             fp )
-#                 return( True , session )
-#             else:
-#                 Logger.info( 'Warning: ' +
-#                         'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
-#                 return( False , session )
-#         else:
-#             Logger.info( 'Error: Failed to log in (Status Code = {})'.format( response.status_code ) )
-#             return( False , session )
-#     except Exception as e:
-#         st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-#         Logger.info( 'Error:  {1}\n'.format( st , e ) )
-#     return( False , session )
-
 
 class LoginScreen( Screen ):
 
@@ -186,7 +84,7 @@ class LoginScreen( Screen ):
         #     plans_app.screens[ 0 ].ids.username.text = app.cookie_jar.get( 'user_name' )[ 'username' ]
         # plans_app.current = 'login'
         pass
-    
+
     def logInTask( self , username , password ):
         Logger.info( 'Login: verifying username and password' )
         app = App.get_running_app()
@@ -196,6 +94,7 @@ class LoginScreen( Screen ):
         elif( password == '' ):
             Logger.error( 'Login: password must not be empty.' )
             return
+        app.username = username
         params = urllib.parse.urlencode( { 'username' : username ,
                                            'password' : password } )
         headers = { 'Content-type' : 'application/x-www-form-urlencoded',
@@ -245,79 +144,81 @@ class LoginScreen( Screen ):
                     key = cookie
                 if( key == 'PHPSESSID' ):
                     app.session_id = val
+                    with open( app.session_file , 'w' ) as fp:
+                        fp.write( '{}\n{}'.format( app.username ,
+                                                   app.session_id ) )
                     break
             app.autofinger_list = resp_dict[ 'autofingerList' ]
             app.root.ids.screen_manager.current = "autofinger_list_screen"
         else:
             Logger.error( 'Login: {}'.format( resp_dict[ 'message' ] ) )
             return
-        #         Logger.info( "Staging: {} - {}".format( this_line() , 'response generated' ) )
-        #         if( testing ):
-        #             Logger.info( '{}'.format( response ) )
-        #             Logger.info( 'Staging: Status Code = {}'.format( response.status_code ) )
-        #             Logger.info( 'Headers = {}'.format( response.headers ) )
-        #             Logger.info( 'Text = {}'.format( response.text ) )
-        #         if( response.status_code == requests.codes.ok ):
-        #             ##
-        #             json_response = response.json()
-        #             response.close()
-        #             json_success = json_response[ 'success' ]
-        #             json_message = json_response[ 'message' ]
-        #             if( testing ):
-        #                 Logger.info( 'Staging: JSON Success = {}'.format( json_success ) )
-        #                 Logger.info( 'Staging: JSON Message = {}'.format( json_message ) )
-        #             if( json_success ):
-        #                 if( testing ):
-        #                     print( '{} - {}'.format( this_line() , json_response ) )
-        #                 ## TODO - remember the SessionID cookie?
-        #                 #jar = response.cookies
-        #                 ##Logger.info( '{}'.format( jar[ 'Cookie PHPSESSID' ] ) )
-        #                 if( testing ):
-        #                     Logger.info( '{}'.format( jar ) )
-        #                 ## TODO - if remember username is checked, then...
-        #                 app.cookie_jar.put( 'user_name' ,
-        #                                 username = username )
-        #                 ## TODO - if remember password is checked, then...
-        #                 ##cookie_jar.put( 'user_pass' ,
-        #                 ##                passwd = password )
-        #                 Logger.info( 'Staging: {} - Logged in.  Checking plan...'.format( this_line() ) )
-        #                 with open('session.dat', 'w') as fp:
-        #                     ## TK
-        #                     1##pickle.dump( requests.utils.dict_from_cookiejar( session.cookies ) ,
-        #                     ##             fp )
-        #                 return( True , session )
-        #             else:
-        #                 Logger.info( 'Warning: ' +
-        #                         'Unsuccessful login. Returning to login page:  {}'.format( json_message ) )
-        #                 return( False , session )
-        #         else:
-        #             Logger.info( 'Error: Failed to log in (Status Code = {})'.format( response.status_code ) )
-        #             return( False , session )
-        #     except Exception as e:
-        #         st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-        #         Logger.info( 'Error:  {1}\n'.format( st , e ) )
-        # try:
-        #     ( successful_login , session ) = \
-        #       session_login( session , username , password )
-        #     ##
-        #     if( successful_login ):
-        #         ## TODO - move this extra call to get_json_list back inside
-        #         ##        the call to session_login
-        #         json_list = get_json_list( session = session ,
-        #                                    username = username )
-        #         if( json_list == None ):
-        #             Logger.info( 'Warning: I had trouble loading the autofinger list' )
-        #             plans_app.current = 'login_page'
-        #             self.endSession()
-        #             return()
-        #         else:
-        #             self.update_autofinger( json_list )
-        #     else:
-        #         self.endSession()
-        #         return()
-        # except Exception as e:
-        #     st = datetime.datetime.fromtimestamp( time.time() ).strftime('%Y-%m-%d %H:%M:%S')
-        #     Logger.info( 'Error:  {1}\n'.format( st , e ) )
+
+
+    def restoreSessionTask( self , dt = None ):
+        Logger.info( 'Login: restoring previous session' )
+        app = App.get_running_app()
+        with open( app.session_file , 'r' ) as fp:
+            app.username = fp.readline().strip()
+            app.session_id = fp.readline().strip()
+        params = urllib.parse.urlencode( { 'username' : app.username } )
+        headers = { 'Content-type' : 'application/x-www-form-urlencoded',
+                    'Accept' : 'text/plain' ,
+                    'Cookie' : 'PHPSESSID={}'.format( app.session_id ) }
+        req = UrlRequest( app.api_urls[ 'autofinger' ] ,
+                          on_success = self.restore_session_success ,
+                          on_failure = self.restore_session_failure ,
+                          on_error = self.restore_session_error ,
+                          req_body  = params ,
+                          req_headers = headers )
+        ## TODO - start login animation
+
+    def restore_session_failure( self , req , resp ):
+        Logger.info( 'Login: failed restore session' )
+        Logger.info( 'Login: req = {}'.format( req ) )
+        Logger.info( 'Login: resp = {}'.format( resp ) )
+
+    def restore_session_error( self , req , resp ):
+        Logger.info( 'Login: error restore session' )
+        Logger.info( 'Login: req = {}'.format( req ) )
+        Logger.info( 'Login: resp = {}'.format( resp ) )
+
+    def restore_session_success( self , req , resp ):
+        Logger.info( 'Login: successfully restored session' )
+        ## Valid responses:
+        ## - { "message" : "Invalid username or password." ,
+        ##     "success" : false }
+        ## - { "message" : "" ,
+        ##     "success" : true ,
+        ##     "autofingerList" : [
+        ##        { "level" : "1" ,
+        ##          "usernames" : [ ... ] } ,
+        ##        { "level" : "2" ,
+        ##          "usernames" : [ ... ] } ,
+        ##        { "level" : "3" ,
+        ##          "usernames" : [ ... ] } ] }
+        resp_dict = json.loads( resp )
+        if( resp_dict[ 'success' ] ):
+            app = App.get_running_app()
+            cookie_str = req.resp_headers[ 'Set-Cookie' ]
+            cookies = cookie_str.split( ';' )
+            for cookie in cookies:
+                cookie = cookie.strip()
+                try:
+                    key , val = cookie.split( '=' )
+                except ValueError:
+                    key = cookie
+                if( key == 'PHPSESSID' ):
+                    app.session_id = val
+                    with open( app.session_file , 'w' ) as fp:
+                        fp.write( '{}\n{}'.format( app.username ,
+                                                   app.session_id ) )
+                    break
+            app.autofinger_list = resp_dict[ 'autofingerList' ]
+            app.root.ids.screen_manager.current = "autofinger_list_screen"
+        else:
+            Logger.error( 'Login: {}'.format( resp_dict[ 'message' ] ) )
+            return
 
 
     def __init__(self , **kwargs ):
@@ -330,14 +231,10 @@ class LoginScreen( Screen ):
         Clock.schedule_once(self.init_ui, 0)
     
     def init_ui( self , dt = 0 ):
-        # app = App.get_running_app()
-        # ## Setting color scheme
-        # for this_child in self.children:
-        #     for widget in this_child.walk( restrict = False ):
-        #         if( type( widget ) == type( Button() ) ):
-        #             widget.background_color = app.cookie_jar.get( 'color_scheme' )[ 'button_bg' ]
-        #             widget.color = app.cookie_jar.get( 'color_scheme' )[ 'button_fg' ]
-        #         elif( type( widget ) == type( Label() ) ):
-        #             widget.background_color = app.cookie_jar.get( 'color_scheme' )[ 'label_bg' ]
-        #             widget.color = app.cookie_jar.get( 'color_scheme' )[ 'label_fg' ]
-        pass
+        app = App.get_running_app()
+        app.session_file = os.path.join( app.user_data_dir ,
+                                         'php_sess_id.txt' )
+        if( os.path.exists( app.session_file ) ):
+            self.ids.restore_session_button.disabled = False
+            ##Clock.schedule_once( self.restoreSessionTask , 0 )
+
