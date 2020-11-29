@@ -1,0 +1,33 @@
+<SearchScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    GridLayout:
+        orientation: 'lr-tb'
+        cols: 1
+        halign: "center"
+        Widget:
+            size_hint: None, None
+            height: app.notch_height
+        
+        MDToolbar:
+            id: toolbar
+            title: 'Search'
+            elevation: 0
+            md_bg_color: [ 1 , 0.8 , .3 , .5 ]
+            left_action_items: [[ "menu" , lambda x: app.mainMenu() ]]
+            right_action_items: [ [ "view-column" , lambda x: app.showAutofingerList() ] ]
+        
+        MDTextFieldRect:
+            id: username
+            ## TODO - reconfigure to use rectangle mode of hint_text
+            size_hint: 0.8 , 0.2
+            multiline: False
+        MDRectangleFlatButton:
+            id: search_username_button
+            markup: True
+            text: "Finger"
+            size_hint: 0.8 , 0.2
+            on_press: root.searchUsername()

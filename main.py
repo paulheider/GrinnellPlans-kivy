@@ -66,7 +66,7 @@ class FingerDialog( BoxLayout ):
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.48.17'
+    __version__ = '20.48.18'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     
@@ -122,6 +122,7 @@ class GrinnellPlansApp( MDApp ):
 
 
     def showAutofingerList( self ):
+        self.root.ids.screen_manager.current = "autofinger_list_screen"
         params = urllib.parse.urlencode( { 'username' : self.username } )
         headers = { 'Content-type' : 'application/x-www-form-urlencoded',
                     'Accept' : 'text/plain' ,
@@ -133,30 +134,10 @@ class GrinnellPlansApp( MDApp ):
                           req_body  = params ,
                           req_headers = headers )
 
+        
     def showSearch( self ):
         Logger.info( 'Toolbar: search for plan' )
-        return
-        app = App.get_running_app()
-        if( self.dialog is None ):
-            self.dialog = MDDialog(
-                title="Username",
-                type="custom",
-                content_cls = FingerDialog(),
-                size_hint = ( 0.8 , None ) ,
-                buttons=[
-                    #MDFlatButton(
-                    #    text = "cancel" ,
-                    #    text_color = self.theme_cls.primary_color ,
-                    #    on_release = self.closeFingerDialog ,
-                    #    #),
-                    MDFlatButton(
-                        text = "finger" ,
-                        text_color = self.theme_cls.primary_color ,
-                        on_release = self.readFingerDialog
-                    )
-                ],
-            )
-        self.dialog.open()
+        self.root.ids.screen_manager.current = "search_screen"
 
         
     def readFingerDialog( self , *kwargs ):

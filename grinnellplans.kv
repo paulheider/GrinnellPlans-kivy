@@ -9,29 +9,9 @@
 #:include screens/readplanscreen.kv
 #:import ReadPlanScreen screens.readplanscreen.ReadPlanScreen
 
-# <Content>
-#     orientation: "vertical"
-#     spacing: "12dp"
-#     size_hint_y: None
-#     height: "120dp"
+#:include screens/searchscreen.kv
+#:import SearchScreen screens.searchscreen.SearchScreen
 
-#     MDTextField:
-#         hint_text: "City"
-
-#     MDTextField:
-#         hint_text: "Street"
-        
-<FingerDialog>
-    id: finger_dialog
-    orientation: "vertical"
-    spacing: "12dp"
-    size_hint: 0.8 , None
-    height: "40dp"
-
-    MDTextField:
-        id: finger_username
-        hint_text: "Username"
-        
         
 BoxLayout:
     ScreenManager:
@@ -54,4 +34,10 @@ BoxLayout:
             canvas.before:
                 Color:
                     rgba: 0.3, 0.8, 1, .5
+        SearchScreen:
+            id: search_screen
+            name: "search_screen"
+            canvas.before:
+                Color:
+                    rgba: 1 , 0.8 , 0.3 , .5
 
