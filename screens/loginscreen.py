@@ -236,5 +236,5 @@ class LoginScreen( Screen ):
                                          'php_sess_id.txt' )
         if( os.path.exists( app.session_file ) ):
             self.ids.restore_session_button.disabled = False
-            ##Clock.schedule_once( self.restoreSessionTask , 0 )
+            Clock.schedule_once( self.restoreSessionTask , 0 )
 

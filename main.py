@@ -15,6 +15,11 @@ from kivy.logger import Logger
 
 from kivymd.app import MDApp
 
+from kivymd.app import MDApp
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog
+
+from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
 from kivy.utils import platform
 if( platform == 'linux' ):
@@ -51,8 +56,17 @@ log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
 ##
 ########################################################################
 
+# class Content(BoxLayout):
+#     def __init__(self, **kwargs):
+#         super( BoxLayout , self).__init__(**kwargs)
+
+
+class FingerDialog( BoxLayout ):
+    pass
+
+
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.48.13'
+    __version__ = '20.48.15'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     
@@ -70,9 +84,42 @@ class GrinnellPlansApp( MDApp ):
 
     username = ""
     autofinger_list = {}
+    flagged_plans = set()
 
+    dialog = None
+
+    def mainMenu( self ):
+        Logger.info( 'Toolbar: main menu' )
+        
+    
     def rememberPlan( self ):
-        pass
+        Logger.info( 'Read: toggling read-later flag on plan' )
+        open_plan = self.root.ids.read_plan_screen.ids.toolbar.title
+        flagged_plan_file = os.path.join( App.get_running_app().user_data_dir , 'flagged_plans.txt' )
+        if( open_plan in self.flagged_plans ):
+            self.flagged_plans.remove( open_plan )
+            with open( flagged_plan_file , 'w' ) as fp:
+                for plan_name in self.flagged_plans:
+                    fp.write( '{}\n'.format( plan_name ) )
+            ##self.root.ids.read_plan_screen.ids.toolbar.update_action_bar( 'left_action_items' ,
+            ##                                                              [[ "flag-outline" ,
+            ##                                                                 lambda x: app.rememberPlan() ]] )
+            ##                                                              ##[[ "view-column" ,
+            ##                                                              ##   lambda x: app.showAutofingerList() ] ,
+            ##                                                             ## [ "account-search" ,
+            ##                                                              ##   lambda x: app.showSearch() ]] )
+            self.root.ids.read_plan_screen.ids.toolbar.right_action_items[ 0 ][ 0 ] = 'flag'
+        else:
+            self.flagged_plans.add( open_plan )
+            with open( flagged_plan_file , 'w' ) as fp:
+                for plan_name in self.flagged_plans:
+                    fp.write( '{}\n'.format( plan_name ) )
+            self.root.ids.read_plan_screen.ids.toolbar.right_action_items[ 0 ][ 0 ] = 'flag-outline'
+            ##self.root.ids.read_plan_screen.ids.toolbar.update_action_bar( 'left_action_items' ,
+            ##                                                              [[ "flag" ,
+            ##                                                                 lambda x: app.rememberPlan() ]] )
+
+
 
     def showAutofingerList( self ):
         params = urllib.parse.urlencode( { 'username' : self.username } )
@@ -86,10 +133,50 @@ class GrinnellPlansApp( MDApp ):
                           req_body  = params ,
                           req_headers = headers )
 
-
     def showSearch( self ):
-        pass
-    
+        Logger.info( 'Toolbar: search for plan' )
+        return
+        app = App.get_running_app()
+        if( self.dialog is None ):
+            self.dialog = MDDialog(
+                title="Username",
+                type="custom",
+                content_cls = FingerDialog(),
+                size_hint = ( 0.8 , None ) ,
+                buttons=[
+                    #MDFlatButton(
+                    #    text = "cancel" ,
+                    #    text_color = self.theme_cls.primary_color ,
+                    #    on_release = self.closeFingerDialog ,
+                    #    #),
+                    MDFlatButton(
+                        text = "finger" ,
+                        text_color = self.theme_cls.primary_color ,
+                        on_release = self.readFingerDialog
+                    )
+                ],
+            )
+        self.dialog.open()
+
+        
+    def readFingerDialog( self , *kwargs ):
+        Logger.info( 'Dialog: reading plan' )
+        with open( os.path.join( App.get_running_app().user_data_dir ,
+                                 'log.txt' ) , 'w' ) as fp:
+            ##    fp.write( '{}\n'.format( dialog_ref ) )
+            fp.write( '{}\n'.format( App.get_running_app().dialog.ids.finger_username ) )
+            fp.write( 'fin\n' )
+        ##print( '{}\n'.format( self.dialog.ids ) )
+        
+            
+    def closeFingerDialog( self , dialog_ref ):
+        Logger.info( 'Dialog: closing' )
+        print( '{}'.format( dialog_ref ) )
+        print( '{}'.format( dialog_ref.ids ) )
+        if( self.dialog is not None ):
+            self.dialog.dismiss()
+
+        
     def initilize_global_dirs(self):
         log_dir = os.path.join( App.get_running_app().user_data_dir , 'log' )
         if( not os.path.exists( log_dir ) ):

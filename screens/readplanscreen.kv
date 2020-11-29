@@ -1,12 +1,15 @@
+<PlanChunk>:
+    text: root.text
+    text_size: self.width, None
+    size_hint_y: None
+    height: self.texture_size[ 1 ]
+    markup: True
+    padding: 10 , 0
+        
+
 <ScrollableLabel>:
-    text: '(plan)'
-    MDLabel:
-        text: root.text
-        text_size: self.width, None
-        size_hint_y: None
-        height: self.texture_size[ 1 ]
-        markup: True
-        padding: 10 , 10
+    MDList:    
+        id: plan_body
 
 <ReadPlanScreen>:
     canvas.before:
@@ -27,9 +30,11 @@
             title: '(username)'
             elevation: 0
             md_bg_color: [ 0.3 , 0.8 , 1 , .5 ]
-            left_action_items: [[ "flag-outline" , lambda x: app.rememberPlan() ]]
-            right_action_items: [[ "view-column" , lambda x: app.showAutofingerList() ] , [ "account-search" , lambda x: app.showSearch() ]]
+            left_action_items: [[ "menu" , lambda x: app.mainMenu() ]]
+            right_action_items: [ [ "flag-outline" , lambda x: app.rememberPlan() ] , [ "view-column" , lambda x: app.showAutofingerList() ] , [ "account-search" , lambda x: app.showSearch() ]]
 
-        ScrollableLabel:
-            id: plan_body
-            text: '(plan)'
+        ##ScrollableLabel:
+        ScrollView:
+            MDList:    
+                id: plan_body
+

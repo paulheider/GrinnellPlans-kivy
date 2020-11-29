@@ -77,7 +77,7 @@ class PlansHTMLParser( HTMLParser ):
         elif( tag == 'b' ):
             self.plan_buffer = ''.join( ( self.plan_buffer , '[b]' ) )
         elif( tag == 'hr' ):
-            self.plan_buffer = ''.join( ( self.plan_buffer , '------------' ) )
+            self.plan_buffer = ''.join( ( self.plan_buffer , '[hr]' ) )
         elif( tag == 'i' ):
             self.plan_buffer = ''.join( ( self.plan_buffer , '[i]' ) )
         elif( tag == 'u' ):
@@ -138,9 +138,12 @@ class PlansHTMLParser( HTMLParser ):
 #     webbrowser.open(url)
 # ## END hack
 
-        
+
+class PlanChunk( MDLabel ):
+    pass
+
 class ScrollableLabel( ScrollView ):
-    text = StringProperty( '' )
+    pass
 
 
 class ReadPlanScreen( Screen ):
@@ -177,14 +180,48 @@ class ReadPlanScreen( Screen ):
 
 
     def chunkPlanBody( self , dt ):
+        Logger.info( 'Read: plan size is {}. Chunking plan'.format( len( self.plans_parser.plan_buffer ) ) )
+        app = App.get_running_app()
+        plan_body = app.root.ids.read_plan_screen.ids.plan_body
+        ##with open( '/tmp/plan.txt' , 'w' ) as fp:
+        ##    fp.write( '{}\n'.format( self.plans_parser.plan_buffer ) )
+        sections = self.plans_parser.plan_buffer.split( '[hr]' )
+        plan_body.clear_widgets()
+        for section in sections:
+            section_size =  len( section )
+            Logger.info( 'Read: section size {}'.format( section_size ) )
+            if( section_size > 1024 ):
+                paragraphs = section.splitlines()
+                paragraph_buffer = None
+                for paragraph in paragraphs:
+                    paragraph_size = len( paragraph )
+                    Logger.info( 'Read: paragraph size {}'.format( paragraph_size ) )
+                    if( paragraph_buffer is None ):
+                        paragraph_buffer = paragraph
+                    elif( len( paragraph_buffer ) + paragraph_size < 1024 ):
+                        paragraph_buffer = '{}\n{}'.format( paragraph_buffer , paragraph )
+                    else:
+                        Logger.info( 'Read: setting chunk size {}'.format( len( paragraph_buffer ) ) )
+                        new_chunk = PlanChunk( text = paragraph_buffer )
+                        plan_body.add_widget( new_chunk )
+                        paragraph_buffer = paragraph
+                if( paragraph_buffer is not None ):
+                    Logger.info( 'Read: setting chunk size {}'.format( len( paragraph_buffer ) ) )
+                    new_chunk = PlanChunk( text = paragraph_buffer )
+                    plan_body.add_widget( new_chunk )
+            else:
+                new_chunk = PlanChunk( text = section )
+                plan_body.add_widget( new_chunk )
+            hr_chunk = PlanChunk( text = '------------' , halign = "center" )
+            plan_body.add_widget( hr_chunk )
         ## bails  at 6144
-        new_chunk_size = len( self.ids.plan_body.text ) + 1024
-        if( new_chunk_size < len( self.plans_parser.plan_buffer ) ):
-            Logger.info( 'Read: {}'.format( new_chunk_size ) )
-            self.ids.plan_body.text = self.plans_parser.plan_buffer[ 0:new_chunk_size ]
-            Clock.schedule_once( self.chunkPlanBody , 2 )
-        else:
-            self.ids.plan_body.text = self.plans_parser.plan_buffer
+        #new_chunk_size = len( self.ids.plan_body.text ) + 1024
+        #if( new_chunk_size < len( self.plans_parser.plan_buffer ) ):
+        #    Logger.info( 'Read: {}'.format( new_chunk_size ) )
+        #    self.ids.plan_body.text = self.plans_parser.plan_buffer[ 0:new_chunk_size ]
+        #    Clock.schedule_once( self.chunkPlanBody , 2 )
+        #else:
+        #    self.ids.plan_body.text = self.plans_parser.plan_buffer
             
     
     def cleanPlanBody( self , plan_body , this_encoding = None ):
@@ -194,14 +231,16 @@ class ReadPlanScreen( Screen ):
             self.plans_parser.feed( plan_body )
         else:
             self.plans_parser.feed( plan_body.encode( this_encoding ) )
-        if( len( self.plans_parser.plan_buffer ) < 5120 ):
-            self.ids.plan_body.text = self.plans_parser.plan_buffer
-        else:
-            ## https://github.com/kivy/kivy/issues/2119
-            Logger.info( 'Read: plan size is {} ({}). Chunking plan'.format( len( plan_body ) ,
-                                                                             len( self.plans_parser.plan_buffer ) ) )
-            self.ids.plan_body.text = self.plans_parser.plan_buffer[ 0:5120 ]
-            ##Clock.schedule_once( self.chunkPlanBody )
+        ## https://github.com/kivy/kivy/issues/2119
+        Clock.schedule_once( self.chunkPlanBody )
+        #if( len( self.plans_parser.plan_buffer ) < 5120 ):
+        #    self.ids.plan_body.text = self.plans_parser.plan_buffer
+        #else:
+        #
+        #    Logger.info( 'Read: plan size is {} ({}). Chunking plan'.format( len( plan_body ) ,
+        #                                                                     len( self.plans_parser.plan_buffer ) ) )
+        #    self.ids.plan_body.text = self.plans_parser.plan_buffer[ 0:5120 ]
+        #    ##
             
                 
         
