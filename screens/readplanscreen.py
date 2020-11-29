@@ -138,6 +138,7 @@ class PlansHTMLParser( HTMLParser ):
 #     webbrowser.open(url)
 # ## END hack
 
+import webbrowser
 
 class PlanChunk( MDLabel ):
 
@@ -152,7 +153,7 @@ class PlanChunk( MDLabel ):
             app = App.get_running_app()
             app.root.ids.read_plan_screen.readTask( plan_name )
         else:
-            print( 'External:  {}'.format( link ) )
+            webbrowser.open( link )
 
 
 class ScrollableLabel( ScrollView ):
