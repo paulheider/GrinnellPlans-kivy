@@ -140,7 +140,20 @@ class PlansHTMLParser( HTMLParser ):
 
 
 class PlanChunk( MDLabel ):
-    pass
+
+    def __init__(self, **kwargs):
+        kwargs['on_ref_press'] = self.refLink
+        super().__init__(**kwargs)
+
+    def refLink( self , src , link , *kwargs ):
+        Logger.info( 'Read: ref clicked' )
+        if( link.startswith( 'read.php?searchname=' ) ):
+            relative_url , plan_name = link.split( '=' )
+            app = App.get_running_app()
+            app.root.ids.read_plan_screen.readTask( plan_name )
+        else:
+            print( 'External:  {}'.format( link ) )
+
 
 class ScrollableLabel( ScrollView ):
     pass
