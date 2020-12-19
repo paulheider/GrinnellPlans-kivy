@@ -1,0 +1,40 @@
+<PlanChunk>:
+    text: root.text
+    text_size: self.width, None
+    size_hint_y: None
+    height: self.texture_size[ 1 ]
+    markup: True
+    padding: 10 , 0
+        
+
+<ScrollableLabel>:
+    MDList:    
+        id: plan_body
+
+<ReadPlanScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    BoxLayout:
+        orientation: 'vertical'        
+        ##cols: 1
+        ##size_hint_y: None
+        Widget:
+            size_hint: None, None
+            height: app.notch_height
+
+        MDToolbar:
+            id: toolbar
+            title: '(username)'
+            elevation: 0
+            md_bg_color: [ 0.3 , 0.8 , 1 , .5 ]
+            left_action_items: [[ "menu" , lambda x: app.mainMenu() ]]
+            right_action_items: [ [ "flag-outline" , lambda x: app.rememberPlan() ] , [ "view-column" , lambda x: app.showAutofingerList() ] , [ "account-search" , lambda x: app.showSearch() ]]
+
+        ##ScrollableLabel:
+        ScrollView:
+            MDList:    
+                id: plan_body
+
