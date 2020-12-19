@@ -12,6 +12,9 @@
 #:include screens/searchscreen.kv
 #:import SearchScreen screens.searchscreen.SearchScreen
 
+#:include screens/flaggedplanscreen.kv
+#:import FlaggedPlanScreen screens.flaggedplanscreen.FlaggedPlanScreen
+
         
 BoxLayout:
     ScreenManager:
@@ -40,4 +43,10 @@ BoxLayout:
             canvas.before:
                 Color:
                     rgba: 1 , 0.8 , 0.3 , .5
+        FlaggedPlanScreen:
+            id: flagged_plan_screen
+            name: "flagged_plan_screen"
+            canvas.before:
+                Color:
+                    rgba: 0.3 , 1 , 0.8 , .5
 

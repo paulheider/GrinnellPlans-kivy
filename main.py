@@ -66,7 +66,7 @@ class FingerDialog( BoxLayout ):
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.48.18'
+    __version__ = '20.51.2'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     
@@ -90,6 +90,7 @@ class GrinnellPlansApp( MDApp ):
 
     def mainMenu( self ):
         Logger.info( 'Toolbar: main menu' )
+        self.root.ids.screen_manager.current = "flagged_plan_screen"
         
     
     def rememberPlan( self ):
@@ -194,6 +195,25 @@ class GrinnellPlansApp( MDApp ):
         ##self.cookie_jar = DictStore( 'cookies.dat' )
         self.initilize_global_dirs()
         self.loadColorScheme()
+        if( platform == 'android' ):
+            Logger.info( 'Verifying run-time permissions' )
+            try:
+                from android.permissions import request_permissions, check_permission, Permission
+            except ImportError:
+                Logger.exception( 'Error importing android.permissions' )
+            Logger.info( 'Imported permission modules' )
+            request_response = request_permissions( [ Permission.INTERNET ] )
+            if( check_permission( Permission.INTERNET ) ):
+                Logger.info( 'Verified permissions:  {}'.format( Permission.INTERNET ) )
+            else:
+                Logger.info( 'Rejected permissions:  {}'.format( Permission.INTERNET ) )
+        else:
+            Logger.info( 'No additional permissions needed' )
+        flagged_plan_file = os.path.join( App.get_running_app().user_data_dir , 'flagged_plans.txt' )
+        if( os.path.exists( flagged_plan_file ) ):
+            with open( flagged_plan_file , 'r' ) as fp:
+                self.flagged_plans.add( fp.readline().strip() )
+
         
     def build(self):
         ## The kv file handles layout
