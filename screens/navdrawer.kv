@@ -1,0 +1,42 @@
+# Menu item in the DrawerList list.
+<ItemDrawer>:
+    theme_text_color: "Custom"
+    on_release: self.parent.set_color_item(self)
+
+    IconLeftWidget:
+        id: icon
+        icon: root.icon
+        theme_text_color: "Custom"
+        text_color: root.text_color
+
+
+<ContentNavigationDrawer>:
+    ScrollView:
+        MDList:
+            # OneLineListItem:
+            #     text: "Flagged Plans"
+            #     on_press:
+            #         root.nav_drawer.set_state( "close" )
+            #         app.mainMenu()
+            OneLineListItem:
+                text: "Autofinger Lists"
+                on_press:
+                    root.nav_drawer.set_state( "close" )
+                    app.showAutofingerList()
+            OneLineListItem:
+                text: "Finger User"
+                on_press:
+                    root.nav_drawer.set_state( "close" )
+                    app.showSearch()
+            OneLineListItem:
+                text: "Log Out"
+                on_press:
+                    root.nav_drawer.set_state( "close" )
+                    app.log_out()
+
+
+<HamburgerMenu>:
+    id: nav_drawer
+    
+    ContentNavigationDrawer:
+        nav_drawer: nav_drawer

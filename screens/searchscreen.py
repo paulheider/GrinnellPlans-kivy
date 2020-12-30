@@ -82,6 +82,11 @@ class SearchScreen( Screen ):
 
     def on_enter( self ):
         app = App.get_running_app()
+        ##
+        app.root.ids.toolbar.title = 'Search'
+        ## right_action_items: [ [ "view-column" , lambda x: app.showAutofingerList() ] ]
+        app.root.ids.toolbar.md_bg_color = [ 1 , 0.8 , .3 , .5 ]
+        ##
         app.root.ids.search_screen.ids.username.text = ""
         
 

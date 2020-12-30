@@ -72,18 +72,13 @@ class LoginScreen( Screen ):
 
     
     def endSession( self ):
-        # app = App.get_running_app()
-        # ## TODO - add a button to the home screen to that you can do very early
-        # ##        in case the saved data is corrupted somehow? same for cookie_jar, defaults?
-        # global session
-        # session = None
-        # if( os.path.exists( 'session.dat' ) ):
-        #     os.remove( 'session.dat' )
-        # if( applcookie_jar.exists( 'user_name' ) ):
-        #     ## TODO:  make this a robust look-up rather than hard-coded index
-        #     plans_app.screens[ 0 ].ids.username.text = app.cookie_jar.get( 'user_name' )[ 'username' ]
-        # plans_app.current = 'login'
-        pass
+        ## TODO - add a button to the home screen to that you can do very early
+        ##        in case the saved data is corrupted somehow? same for cookie_jar, defaults?
+        app = App.get_running_app()
+        if( os.path.exists( app.session_file ) ):
+            self.ids.restore_session_button.disabled = True
+            os.remove( app.session_file )
+
 
     def logInTask( self , username , password ):
         Logger.info( 'Login: verifying username and password' )

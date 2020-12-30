@@ -15,7 +15,9 @@ from kivy.logger import Logger
 
 from kivymd.app import MDApp
 
-from kivymd.app import MDApp
+from kivymd.uix.navigationdrawer import MDNavigationDrawer
+from kivymd.uix.list import OneLineIconListItem
+
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
 
@@ -26,7 +28,7 @@ if( platform == 'linux' ):
     ##Window.size = ( 600 , 350 )
     Window.size = ( 350 , 600 )
 
-from kivy.properties import NumericProperty
+from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 
 from kivy.network.urlrequest import UrlRequest
 import urllib
@@ -66,9 +68,10 @@ class FingerDialog( BoxLayout ):
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.51.2'
+    __version__ = '20.53.0'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
+    navdrawer_height = NumericProperty( 0 )
     
     ## TODO - add a if( debug mode flag ): here?
     ##        or maybe make this a toggle on the home screen
@@ -98,10 +101,8 @@ class GrinnellPlansApp( MDApp ):
         open_plan = self.root.ids.read_plan_screen.ids.toolbar.title
         flagged_plan_file = os.path.join( App.get_running_app().user_data_dir , 'flagged_plans.txt' )
         if( open_plan in self.flagged_plans ):
-            self.flagged_plans.remove( open_plan )
-            with open( flagged_plan_file , 'w' ) as fp:
-                for plan_name in self.flagged_plans:
-                    fp.write( '{}\n'.format( plan_name ) )
+            ## TODO - we won't treat the flag as a boolean switch until I can
+            ##        update the state of the flag icon in the toolbar here
             ##self.root.ids.read_plan_screen.ids.toolbar.update_action_bar( 'left_action_items' ,
             ##                                                              [[ "flag-outline" ,
             ##                                                                 lambda x: app.rememberPlan() ]] )
@@ -109,6 +110,11 @@ class GrinnellPlansApp( MDApp ):
             ##                                                              ##   lambda x: app.showAutofingerList() ] ,
             ##                                                             ## [ "account-search" ,
             ##                                                              ##   lambda x: app.showSearch() ]] )
+            return
+            self.flagged_plans.remove( open_plan )
+            with open( flagged_plan_file , 'w' ) as fp:
+                for plan_name in self.flagged_plans:
+                    fp.write( '{}\n'.format( plan_name ) )
             self.root.ids.read_plan_screen.ids.toolbar.right_action_items[ 0 ][ 0 ] = 'flag'
         else:
             self.flagged_plans.add( open_plan )
@@ -158,7 +164,12 @@ class GrinnellPlansApp( MDApp ):
         if( self.dialog is not None ):
             self.dialog.dismiss()
 
-        
+
+    def log_out( self ):
+        self.root.ids.login_screen.endSession()
+        self.root.ids.screen_manager.current = "login_screen"
+
+            
     def initilize_global_dirs(self):
         log_dir = os.path.join( App.get_running_app().user_data_dir , 'log' )
         if( not os.path.exists( log_dir ) ):
@@ -213,6 +224,7 @@ class GrinnellPlansApp( MDApp ):
         if( os.path.exists( flagged_plan_file ) ):
             with open( flagged_plan_file , 'r' ) as fp:
                 self.flagged_plans.add( fp.readline().strip() )
+        self.navdrawer_height = self.root.ids.toolbar.height
 
         
     def build(self):
