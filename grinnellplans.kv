@@ -1,5 +1,8 @@
 #:kivy 2.0.0
 
+#:include screens/navdrawer.kv
+#:import HamburgerMenu screens.navdrawer.HamburgerMenu
+
 #:include screens/loginscreen.kv
 #:import LoginScreen screens.loginscreen.LoginScreen
 
@@ -15,38 +18,51 @@
 #:include screens/flaggedplanscreen.kv
 #:import FlaggedPlanScreen screens.flaggedplanscreen.FlaggedPlanScreen
 
-        
-BoxLayout:
-    ScreenManager:
-        id: screen_manager
-        LoginScreen:
-            id: login_screen
-            name: "login_screen"
-            canvas.before:
-                Color:
-                    rgba: 1, .3, .8, .5
-        AutofingerListScreen:
-            id: autofinger_list_screen
-            name: "autofinger_list_screen"
-            canvas.before:
-                Color:
-                    rgba: 0.8, 1, .3, .5
-        ReadPlanScreen:
-            id: read_plan_screen
-            name: "read_plan_screen"
-            canvas.before:
-                Color:
-                    rgba: 0.3, 0.8, 1, .5
-        SearchScreen:
-            id: search_screen
-            name: "search_screen"
-            canvas.before:
-                Color:
-                    rgba: 1 , 0.8 , 0.3 , .5
-        FlaggedPlanScreen:
-            id: flagged_plan_screen
-            name: "flagged_plan_screen"
-            canvas.before:
-                Color:
-                    rgba: 0.3 , 1 , 0.8 , .5
+Screen:
 
+    MDToolbar:
+        id: toolbar
+        title: "Navigation Drawer"
+        pos_hint: {"top": 1}
+        elevation: 10
+        md_bg_color: [ 1 , .3 , .8 , .5 ]
+        left_action_items: [[ 'menu', lambda x: nav_drawer.set_state( "open" ) ]]
+
+    NavigationLayout:
+        
+        ScreenManager:
+            id: screen_manager
+            LoginScreen:
+                id: login_screen
+                name: "login_screen"
+                canvas.before:
+                    Color:
+                        rgba: 1, .3, .8, .5
+            AutofingerListScreen:
+                id: autofinger_list_screen
+                name: "autofinger_list_screen"
+                canvas.before:
+                    Color:
+                        rgba: 0.8, 1, .3, .5
+            ReadPlanScreen:
+                id: read_plan_screen
+                name: "read_plan_screen"
+                canvas.before:
+                    Color:
+                        rgba: 0.3, 0.8, 1, .5
+            SearchScreen:
+                id: search_screen
+                name: "search_screen"
+                canvas.before:
+                    Color:
+                        rgba: 1 , 0.8 , 0.3 , .5
+            FlaggedPlanScreen:
+                id: flagged_plan_screen
+                name: "flagged_plan_screen"
+                canvas.before:
+                    Color:
+                        rgba: 0.3 , 1 , 0.8 , .5
+
+        HamburgerMenu:
+            id: nav_drawer
+            name: "nav_drawer"

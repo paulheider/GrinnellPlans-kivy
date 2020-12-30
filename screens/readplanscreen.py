@@ -164,7 +164,14 @@ class ReadPlanScreen( Screen ):
     ## TODO:  add a button to flag plan for comment/later and see all flagged
     plans_parser = None
     
-    # def on_enter( self ):
+    def on_pre_enter( self ):
+        app = App.get_running_app()
+        app.root.ids.toolbar.md_bg_color = [ 0.3 , 0.8 , 1 , .5 ]
+        #app.root.ids.right_action_items = [ [ "flag-outline" , lambda x: app.rememberPlan() ] ,
+        #                                    [ "view-column" , lambda x: app.showAutofingerList() ] ,
+        #                                    [ "account-search" , lambda x: app.showSearch() ] ]
+    
+
     #     LLOOGG( 'enter' )
     #     ## TODO - if the len( plan_chunks ) < 100 # double screen size
     #     ##          then just display a single chunk
@@ -296,10 +303,10 @@ class ReadPlanScreen( Screen ):
         ##       "plan" : "..." } }
         resp_dict = json.loads( resp )
         if( resp_dict[ 'success' ] ):
-            ##app = App.get_running_app()
+            app = App.get_running_app()
             ##plan_name = self.cleanPlanName( json_response[ 'plandata' ][ 'pseudo' ] ,
             ##                                response.encoding )
-            self.ids.toolbar.title = resp_dict[ 'plandata' ][ 'username' ]
+            app.root.ids.toolbar.title = resp_dict[ 'plandata' ][ 'username' ]
             ##last_login = self.adjustClock( json_response[ 'plandata' ][ 'last_login' ] )
             ##last_updated = self.adjustClock( json_response[ 'plandata' ][ 'last_updated' ] )
             ## NEXT - TK - clean up plan to display
