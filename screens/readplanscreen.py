@@ -167,44 +167,30 @@ class ReadPlanScreen( Screen ):
     ## TODO:  add a button to flag plan for comment/later and see all flagged
     plans_parser = None
     
-    def on_pre_enter( self ):
+    def on_enter( self ):
         app = App.get_running_app()
         app.root.ids.toolbar.md_bg_color = [ 0.3 , 0.8 , 1 , .5 ]
-        #app.root.ids.right_action_items = [ [ "flag-outline" , lambda x: app.rememberPlan() ] ,
-        #                                    [ "view-column" , lambda x: app.showAutofingerList() ] ,
-        #                                    [ "account-search" , lambda x: app.showSearch() ] ]
+        app.root.ids.toolbar.right_action_items = [ [ "flag-outline" , lambda x: app.rememberPlan() ] ,
+                                                    [ "view-column" , lambda x: app.showAutofingerList() ] ,
+                                                    [ "account-search" , lambda x: app.showSearch() ] ]
     
-
-    #     LLOOGG( 'enter' )
-    #     ## TODO - if the len( plan_chunks ) < 100 # double screen size
-    #     ##          then just display a single chunk
-    #     LLOOGG( 'Plan is {} chars long'.format( len( self.plan_body ) ) )
-    #     if( len( self.plan_body ) < 1024 ):
-    #         chunk_label = self.plan_content_template( self.plan_body )
-    #         self.ids.plan_grid.add_widget( chunk_label )
-    #         self.chunk_labels.append( chunk_label )
-    #         return
-    #     self.plan_chunks = self.plan_body.splitlines()
-    #     LLOOGG( 'Plan is {} chunks long'.format( len( self.plan_chunks ) ) )
-    #     ##        else
-    #     ##          display the first 100 lines and then process the rest
-    #     ##          of the chunks
-    #     ## TODO - make bottom widget a loading gif
-    #     ## TODO - don't freeze the screen while this is happening
-    #     just_now = datetime.datetime.now()
-    #     #safe_chunk_ends = [ 5 , len( self.plan_chunks ) ] ## TKZ self.find_safe_ends( plan_chunks , 0 , len( plan_chunks ) )
-    #     safe_chunk_ends = self.find_safe_ends( self.plan_chunks , 0 , len( self.plan_chunks ) )
-    #     chunk_end = safe_chunk_ends.pop( 0 )
-    #     ## Add the first label
-    #     self.finish_labels( 0 , [ chunk_end ] )
-    #     Clock.schedule_once( partial( self.finish_labels ,
-    #                                   chunk_end ,
-    #                                   safe_chunk_ends ) , 0 )
-    #     LLOOGG( 'Done with enter ReadPlan' )
-
+    def update_flag_type( self , open_plan ):
+        ## TODO - force a refresh of the toolbar so the icons switch right away
+        app = App.get_running_app()
+        if( open_plan in app.flagged_plans ):
+            app.root.ids.toolbar.right_action_items = [ [ "flag" , lambda x: app.rememberPlan() ] ,
+                                                        [ "view-column" , lambda x: app.showAutofingerList() ] ,
+                                                        [ "account-search" , lambda x: app.showSearch() ] ]
+        else:
+            app.root.ids.toolbar.right_action_items = [ [ "flag-outline" , lambda x: app.rememberPlan() ] ,
+                                                        [ "view-column" , lambda x: app.showAutofingerList() ] ,
+                                                        [ "account-search" , lambda x: app.showSearch() ] ]
+        
+            
 
     def chunkPlanBody( self , dt ):
         Logger.info( 'Read: plan size is {}. Chunking plan'.format( len( self.plans_parser.plan_buffer ) ) )
+        ## TODO - display the first 100 lines and then process the rest of the chunks
         app = App.get_running_app()
         plan_body = app.root.ids.read_plan_screen.ids.plan_body
         ##with open( '/tmp/plan.txt' , 'w' ) as fp:
@@ -310,6 +296,7 @@ class ReadPlanScreen( Screen ):
             ##plan_name = self.cleanPlanName( json_response[ 'plandata' ][ 'pseudo' ] ,
             ##                                response.encoding )
             app.root.ids.toolbar.title = resp_dict[ 'plandata' ][ 'username' ]
+            self.update_flag_type( resp_dict[ 'plandata' ][ 'username' ] )
             ##last_login = self.adjustClock( json_response[ 'plandata' ][ 'last_login' ] )
             ##last_updated = self.adjustClock( json_response[ 'plandata' ][ 'last_updated' ] )
             ## NEXT - TK - clean up plan to display

@@ -32,7 +32,7 @@ class AutofingerListScreen( Screen ):
         app = App.get_running_app()
         ## TODO - add loading animation
         app.root.ids.toolbar.title = 'Autofinger Lists'
-        ## right_action_items: [[ "account-search" , lambda x: app.showSearch() ]]
+        app.root.ids.toolbar.right_action_items = [[ "account-search" , lambda x: app.showSearch() ]]
         app.root.ids.toolbar.md_bg_color = [ 1 , .3 , .8 , .5 ]
         ##
         self.ids.level1_list.clear_widgets()

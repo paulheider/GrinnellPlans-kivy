@@ -70,7 +70,7 @@ class FingerDialog( BoxLayout ):
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.53.1'
+    __version__ = '20.53.2'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     navdrawer_height = NumericProperty( 0 )
@@ -102,34 +102,24 @@ class GrinnellPlansApp( MDApp ):
     
     def rememberPlan( self ):
         Logger.info( 'Read: toggling read-later flag on plan' )
-        open_plan = self.root.ids.read_plan_screen.ids.toolbar.title
+        open_plan = self.root.ids.toolbar.title
         flagged_plan_file = os.path.join( App.get_running_app().user_data_dir , 'flagged_plans.txt' )
         if( open_plan in self.flagged_plans ):
-            ## TODO - we won't treat the flag as a boolean switch until I can
-            ##        update the state of the flag icon in the toolbar here
-            ##self.root.ids.read_plan_screen.ids.toolbar.update_action_bar( 'left_action_items' ,
-            ##                                                              [[ "flag-outline" ,
-            ##                                                                 lambda x: app.rememberPlan() ]] )
-            ##                                                              ##[[ "view-column" ,
-            ##                                                              ##   lambda x: app.showAutofingerList() ] ,
-            ##                                                             ## [ "account-search" ,
-            ##                                                              ##   lambda x: app.showSearch() ]] )
-            return
+            self.root.ids.toolbar.right_action_items = [ [ "flag" , lambda x: app.rememberPlan() ] ,
+                                                         [ "view-column" , lambda x: app.showAutofingerList() ] ,
+                                                         [ "account-search" , lambda x: app.showSearch() ] ]
             self.flagged_plans.remove( open_plan )
             with open( flagged_plan_file , 'w' ) as fp:
                 for plan_name in self.flagged_plans:
                     fp.write( '{}\n'.format( plan_name ) )
-            self.root.ids.read_plan_screen.ids.toolbar.right_action_items[ 0 ][ 0 ] = 'flag'
         else:
+            self.root.ids.toolbar.right_action_items = [ [ "flag-outline" , lambda x: app.rememberPlan() ] ,
+                                                         [ "view-column" , lambda x: app.showAutofingerList() ] ,
+                                                         [ "account-search" , lambda x: app.showSearch() ] ]
             self.flagged_plans.add( open_plan )
             with open( flagged_plan_file , 'w' ) as fp:
                 for plan_name in self.flagged_plans:
                     fp.write( '{}\n'.format( plan_name ) )
-            self.root.ids.read_plan_screen.ids.toolbar.right_action_items[ 0 ][ 0 ] = 'flag-outline'
-            ##self.root.ids.read_plan_screen.ids.toolbar.update_action_bar( 'left_action_items' ,
-            ##                                                              [[ "flag" ,
-            ##                                                                 lambda x: app.rememberPlan() ]] )
-
 
 
     def showAutofingerList( self ):
