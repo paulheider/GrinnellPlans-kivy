@@ -21,6 +21,7 @@ class PlanItem( OneLineListItem ):
     def on_release( self ):
         Logger.info( 'Autofinger: reading {}'.format( self.username ) )
         app = App.get_running_app()
+        app.pop()
         app.root.ids.screen_manager.current = "read_plan_screen"
         app.root.ids.read_plan_screen.readTask( self.username )
 
@@ -53,5 +54,7 @@ class AutofingerListScreen( Screen ):
                     plan_item = PlanItem( text = '{}'.format( username ) )
                     plan_item.username = username
                     self.ids.level3_list.add_widget( plan_item )
+        ##
+        app.done_loading()
                 
 

@@ -148,12 +148,15 @@ class PlanChunk( MDLabel ):
 
     def refLink( self , src , link , *kwargs ):
         Logger.info( 'Read: ref clicked' )
+        app = App.get_running_app()
+        app.pop()
         if( link.startswith( 'read.php?searchname=' ) ):
             relative_url , plan_name = link.split( '=' )
-            app = App.get_running_app()
             app.root.ids.read_plan_screen.readTask( plan_name )
         else:
+            
             webbrowser.open( link )
+            app.done_loading()
 
 
 class ScrollableLabel( ScrollView ):
@@ -323,4 +326,6 @@ class ReadPlanScreen( Screen ):
         else:
             Logger.error( 'Read: {}'.format( resp_dict[ 'message' ] ) )
             return
+        app = App.get_running_app()
+        app.done_loading()
             

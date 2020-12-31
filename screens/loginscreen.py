@@ -153,6 +153,7 @@ class LoginScreen( Screen ):
     def restoreSessionTask( self , dt = None ):
         Logger.info( 'Login: restoring previous session' )
         app = App.get_running_app()
+        app.pop()
         with open( app.session_file , 'r' ) as fp:
             app.username = fp.readline().strip()
             app.session_id = fp.readline().strip()

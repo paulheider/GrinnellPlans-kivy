@@ -19,6 +19,8 @@ from kivymd.uix.navigationdrawer import MDNavigationDrawer
 from kivymd.uix.list import OneLineIconListItem
 
 from kivymd.uix.button import MDFlatButton
+from kivy.uix.popup import Popup
+from kivymd.uix.progressbar import MDProgressBar
 from kivymd.uix.dialog import MDDialog
 
 from kivy.uix.boxlayout import BoxLayout
@@ -37,7 +39,7 @@ import simplejson as json
 ## TODO:  integrate a config file
 ##from kivy.config import Config
 
-# from kivy.clock import Clock
+from kivy.clock import Clock
 
 # from kivy.graphics import Color
 
@@ -68,7 +70,7 @@ class FingerDialog( BoxLayout ):
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.53.0'
+    __version__ = '20.53.1'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     navdrawer_height = NumericProperty( 0 )
@@ -89,8 +91,10 @@ class GrinnellPlansApp( MDApp ):
     autofinger_list = {}
     flagged_plans = set()
 
-    dialog = None
-
+    progress_bar = ObjectProperty()
+    loading_popup = ObjectProperty()
+    loading_flag = False
+    
     def mainMenu( self ):
         Logger.info( 'Toolbar: main menu' )
         self.root.ids.screen_manager.current = "flagged_plan_screen"
@@ -129,17 +133,21 @@ class GrinnellPlansApp( MDApp ):
 
 
     def showAutofingerList( self ):
-        self.root.ids.screen_manager.current = "autofinger_list_screen"
-        params = urllib.parse.urlencode( { 'username' : self.username } )
-        headers = { 'Content-type' : 'application/x-www-form-urlencoded',
-                    'Accept' : 'text/plain' ,
-                    'Cookie' : 'PHPSESSID={}'.format( self.session_id ) }
-        req = UrlRequest( self.api_urls[ 'autofinger' ] ,
-                          on_success = self.root.ids.login_screen.restore_session_success ,
-                          on_failure = self.root.ids.login_screen.restore_session_failure ,
-                          on_error = self.root.ids.login_screen.restore_session_error ,
-                          req_body  = params ,
-                          req_headers = headers )
+        if( self.root.ids.screen_manager.current == "autofinger_list_screen" ):
+            1 ## NOOP - TODO - maybe change this to fully refresh the list?
+        else:
+            self.pop()
+            self.root.ids.screen_manager.current = "autofinger_list_screen"
+            params = urllib.parse.urlencode( { 'username' : self.username } )
+            headers = { 'Content-type' : 'application/x-www-form-urlencoded',
+                        'Accept' : 'text/plain' ,
+                        'Cookie' : 'PHPSESSID={}'.format( self.session_id ) }
+            req = UrlRequest( self.api_urls[ 'autofinger' ] ,
+                              on_success = self.root.ids.login_screen.restore_session_success ,
+                              on_failure = self.root.ids.login_screen.restore_session_failure ,
+                              on_error = self.root.ids.login_screen.restore_session_error ,
+                              req_body  = params ,
+                              req_headers = headers )
 
         
     def showSearch( self ):
@@ -202,10 +210,41 @@ class GrinnellPlansApp( MDApp ):
         #                 planlove_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'planlove_fg' ] ,
         #                 link_fg = self.cookie_jar.get( 'default_color_scheme' )[ 'link_fg' ] )
     
+    def pop( self ):
+        self.loading_flag = True
+        self.progress_bar.value = 1
+        self.loading_popup.open()
+
+    def done_loading( self ):
+        self.loading_flag = False
+        self.loading_popup.dismiss()
+
+    def next(self, dt):
+        if( self.progress_bar.value >= 100 ):
+            self.progress_bar.value = 1
+        else:
+            self.progress_bar.value += 5
+        return self.loading_flag
+
+    def puopen(self, instance):
+        Clock.schedule_interval( self.next , 1/25 )
+
     def on_start( self ):
         ##self.cookie_jar = DictStore( 'cookies.dat' )
         self.initilize_global_dirs()
         self.loadColorScheme()
+        ## Setting up the loading progress bar
+        ## TODO - set to indeterminate
+        self.progress_bar = MDProgressBar()
+        # TODO - change pop colors to match underlying screen theme
+        self.loading_popup = Popup(
+            title = 'Loading',
+            content = self.progress_bar,
+            auto_dismiss = False,
+            size_hint = ( None , None )
+        )
+        self.loading_popup.bind( on_open = self.puopen )
+        ##
         if( platform == 'android' ):
             Logger.info( 'Verifying run-time permissions' )
             try:
