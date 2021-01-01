@@ -70,7 +70,7 @@ class FingerDialog( BoxLayout ):
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.53.2'
+    __version__ = '20.53.4'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     navdrawer_height = NumericProperty( 0 )
@@ -229,9 +229,10 @@ class GrinnellPlansApp( MDApp ):
         # TODO - change pop colors to match underlying screen theme
         self.loading_popup = Popup(
             title = 'Loading',
+            title_align = 'center' ,
             content = self.progress_bar,
             auto_dismiss = False,
-            size_hint = ( None , None )
+            size_hint = ( 0.5 , None )
         )
         self.loading_popup.bind( on_open = self.puopen )
         ##

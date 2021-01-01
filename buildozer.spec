@@ -39,7 +39,7 @@ source.include_patterns = resources/*.ttf
 #source.exclude_exts = spec
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-source.exclude_dirs = tests, bin, scraps
+source.exclude_dirs = tests, bin, scraps, notes
 
 # (list) List of exclusions using pattern matching
 #source.exclude_patterns = license,images/*/*.jpg
@@ -50,7 +50,7 @@ version.filename = %(source.dir)s/main.py
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
-requirements = python3,kivy==2.0.0,simplejson,openssl
+requirements = python3,kivy==2.0.0,kivymd,simplejson,openssl
 
 # (str) Custom source folders for requirements
 # Sets custom source for any requirements with recipes
