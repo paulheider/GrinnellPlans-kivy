@@ -82,7 +82,7 @@ class FingerDialog( BoxLayout ):
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.53.4'
+    __version__ = '20.53.6'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     navdrawer_height = NumericProperty( 0 )
