@@ -22,6 +22,7 @@ from kivymd.uix.button import MDFlatButton
 from kivy.uix.popup import Popup
 from kivymd.uix.progressbar import MDProgressBar
 from kivymd.uix.dialog import MDDialog
+from kivymd.uix.label import MDLabel
 
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
@@ -35,6 +36,7 @@ from kivy.properties import StringProperty, ObjectProperty, NumericProperty
 from kivy.network.urlrequest import UrlRequest
 import urllib
 import simplejson as json
+import webbrowser
 
 ## TODO:  integrate a config file
 ##from kivy.config import Config
@@ -64,13 +66,23 @@ log_file = 'grinnell_plans_{}.txt'.format( now_filesafe )
 #     def __init__(self, **kwargs):
 #         super( BoxLayout , self).__init__(**kwargs)
 
+about_string = """A Kivy app for interfacing with GrinnellPlans
+
+[b]Contributions or Bugs?[/b]\n[i][ref=https://github.com/paulheider/GrinnellPlans-kivy/issues]https://github.com/paulheider/GrinnellPlans-kivy/issues[/ref][/i]
+
+[b]Lead Dev:[/b]  Paul M. Heider
+
+[b]Version:[/b]  {}
+
+Copyright © 2017-2021 Paul M. Heider
+"""
 
 class FingerDialog( BoxLayout ):
     pass
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.53.2'
+    __version__ = '20.53.4'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     navdrawer_height = NumericProperty( 0 )
@@ -88,12 +100,16 @@ class GrinnellPlansApp( MDApp ):
     session_file = None
 
     username = ""
+    demo_session_flag = False
     autofinger_list = {}
     flagged_plans = set()
 
     progress_bar = ObjectProperty()
     loading_popup = ObjectProperty()
     loading_flag = False
+
+    about_popup = ObjectProperty()
+    about_content = ObjectProperty()
     
     def mainMenu( self ):
         Logger.info( 'Toolbar: main menu' )
@@ -103,7 +119,8 @@ class GrinnellPlansApp( MDApp ):
     def rememberPlan( self ):
         Logger.info( 'Read: toggling read-later flag on plan' )
         open_plan = self.root.ids.toolbar.title
-        flagged_plan_file = os.path.join( App.get_running_app().user_data_dir , 'flagged_plans.txt' )
+        flagged_plan_file = os.path.join( App.get_running_app().user_data_dir ,
+                                          'flagged_plans_{}.txt'.format( self.username ) )
         if( open_plan in self.flagged_plans ):
             self.root.ids.toolbar.right_action_items = [ [ "flag" , lambda x: app.rememberPlan() ] ,
                                                          [ "view-column" , lambda x: app.showAutofingerList() ] ,
@@ -219,6 +236,12 @@ class GrinnellPlansApp( MDApp ):
     def puopen(self, instance):
         Clock.schedule_interval( self.next , 1/25 )
 
+        
+    def refLink( self , src , link , *kwargs ):
+        Logger.info( 'About: ref clicked' )
+        webbrowser.open( link )
+
+
     def on_start( self ):
         ##self.cookie_jar = DictStore( 'cookies.dat' )
         self.initilize_global_dirs()
@@ -229,11 +252,26 @@ class GrinnellPlansApp( MDApp ):
         # TODO - change pop colors to match underlying screen theme
         self.loading_popup = Popup(
             title = 'Loading',
+            title_align = 'center' ,
             content = self.progress_bar,
             auto_dismiss = False,
-            size_hint = ( None , None )
+            size_hint = ( 0.5 , None )
         )
         self.loading_popup.bind( on_open = self.puopen )
+        ##
+        self.about_content = MDLabel( text = about_string.format( self.__version__ ) ,
+                                      markup = True ,
+                                      padding = [ 10 , 10 ] ,
+                                      theme_text_color = "Custom" ,
+                                      text_color = [ 1 , 1 , 1 , 1 ] ,
+                                      on_ref_press = self.refLink )
+        self.about_popup = Popup(
+            title = 'Grinnell Plans',
+            title_align = 'center' ,
+            content = self.about_content ,
+            size_hint = ( 0.8 , 0.8 )
+        )
+        self.about_popup.bind( on_press = self.about_popup.dismiss )
         ##
         if( platform == 'android' ):
             Logger.info( 'Verifying run-time permissions' )
@@ -249,7 +287,8 @@ class GrinnellPlansApp( MDApp ):
                 Logger.info( 'Rejected permissions:  {}'.format( Permission.INTERNET ) )
         else:
             Logger.info( 'No additional permissions needed' )
-        flagged_plan_file = os.path.join( App.get_running_app().user_data_dir , 'flagged_plans.txt' )
+        flagged_plan_file = os.path.join( App.get_running_app().user_data_dir ,
+                                          'flagged_plans_{}.txt'.format( self.username ) )
         if( os.path.exists( flagged_plan_file ) ):
             with open( flagged_plan_file , 'r' ) as fp:
                 self.flagged_plans.add( fp.readline().strip() )

@@ -90,6 +90,16 @@ class LoginScreen( Screen ):
             Logger.error( 'Login: password must not be empty.' )
             return
         app.username = username
+        if( username == 'demo' ):
+            demo_password_file = os.path.join( 'demo' ,
+                                               'password.txt' )
+            with open( demo_password_file , 'r' ) as fp:
+                demo_password = fp.readline().strip()
+            if( self.ids.password.text == demo_password ):
+                Logger.info( 'Login: successfully restored demo session' )
+                app.demo_session_flag = True
+            else:
+                Logger.info( 'Login: incorrect demo password' )
         params = urllib.parse.urlencode( { 'username' : username ,
                                            'password' : password } )
         headers = { 'Content-type' : 'application/x-www-form-urlencoded',
@@ -113,7 +123,7 @@ class LoginScreen( Screen ):
         Logger.info( 'Login: resp = {}'.format( resp ) )
 
     def login_success( self , req , resp ):
-        Logger.info( 'Login: successful login' )
+        Logger.info( 'Login: valid return for login' )
         ## Valid responses:
         ## - { "message" : "Invalid username or password." ,
         ##     "success" : false }
@@ -127,8 +137,9 @@ class LoginScreen( Screen ):
         ##        { "level" : "3" ,
         ##          "usernames" : [ ... ] } ] }
         resp_dict = json.loads( resp )
+        app = App.get_running_app()
         if( resp_dict[ 'success' ] ):
-            app = App.get_running_app()
+            Logger.info( 'Login: successful login' )
             cookie_str = req.resp_headers[ 'Set-Cookie' ]
             cookies = cookie_str.split( ';' )
             for cookie in cookies:
@@ -144,6 +155,15 @@ class LoginScreen( Screen ):
                                                    app.session_id ) )
                     break
             app.autofinger_list = resp_dict[ 'autofingerList' ]
+            app.root.ids.screen_manager.current = "autofinger_list_screen"
+        elif( app.demo_session_flag ):
+            Logger.info( 'Login: successful demo session' )
+            app.autofinger_list = [ { "level" : "1" ,
+                                      "usernames" : [ 'plans' , 'gspelvin' ] } ,
+                                    { "level" : "2" ,
+                                      "usernames" : [ 'newbie' ] } ,
+                                    { "level" : "3" ,
+                                      "usernames" : [ 'nemo' , 'kaplan' , 'harvey' ] } ]
             app.root.ids.screen_manager.current = "autofinger_list_screen"
         else:
             Logger.error( 'Login: {}'.format( resp_dict[ 'message' ] ) )
@@ -180,7 +200,7 @@ class LoginScreen( Screen ):
         Logger.info( 'Login: resp = {}'.format( resp ) )
 
     def restore_session_success( self , req , resp ):
-        Logger.info( 'Login: successfully restored session' )
+        Logger.info( 'Login: successful restore session query' )
         ## Valid responses:
         ## - { "message" : "Invalid username or password." ,
         ##     "success" : false }
@@ -194,8 +214,9 @@ class LoginScreen( Screen ):
         ##        { "level" : "3" ,
         ##          "usernames" : [ ... ] } ] }
         resp_dict = json.loads( resp )
+        app = App.get_running_app()
         if( resp_dict[ 'success' ] ):
-            app = App.get_running_app()
+            Logger.info( 'Login: successfully restored session' )
             cookie_str = req.resp_headers[ 'Set-Cookie' ]
             cookies = cookie_str.split( ';' )
             for cookie in cookies:
@@ -211,6 +232,8 @@ class LoginScreen( Screen ):
                                                    app.session_id ) )
                     break
             app.autofinger_list = resp_dict[ 'autofingerList' ]
+            app.root.ids.screen_manager.current = "autofinger_list_screen"
+        elif( app.demo_session_flag ):
             app.root.ids.screen_manager.current = "autofinger_list_screen"
         else:
             Logger.error( 'Login: {}'.format( resp_dict[ 'message' ] ) )
