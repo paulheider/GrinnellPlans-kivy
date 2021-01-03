@@ -29,6 +29,11 @@
                     root.nav_drawer.set_state( "close" )
                     app.showSearch()
             OneLineListItem:
+                text: "About"
+                on_press:
+                    root.nav_drawer.set_state( "close" )
+                    app.about_popup.open()
+            OneLineListItem:
                 text: "Log Out"
                 on_press:
                     root.nav_drawer.set_state( "close" )

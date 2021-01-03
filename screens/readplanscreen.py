@@ -1,5 +1,6 @@
 import time
 import re
+import os
 
 from kivy.app import App
 from kivy.logger import Logger
@@ -154,7 +155,6 @@ class PlanChunk( MDLabel ):
             relative_url , plan_name = link.split( '=' )
             app.root.ids.read_plan_screen.readTask( plan_name )
         else:
-            
             webbrowser.open( link )
             app.done_loading()
 
@@ -166,6 +166,7 @@ class ScrollableLabel( ScrollView ):
 class ReadPlanScreen( Screen ):
     ## TODO:  add a button to flag plan for comment/later and see all flagged
     plans_parser = None
+    target_plan = None
     
     def on_enter( self ):
         app = App.get_running_app()
@@ -258,6 +259,7 @@ class ReadPlanScreen( Screen ):
         Logger.info( 'Read: opening plan for {}'.format( username ) )
         app = App.get_running_app()
         params = urllib.parse.urlencode( { 'username' : username } )
+        self.target_plan = username
         headers = { 'Content-type' : 'application/x-www-form-urlencoded',
                     'Accept' : 'text/plain' ,
                     'Cookie' : 'PHPSESSID={}'.format( app.session_id ) }
@@ -279,7 +281,7 @@ class ReadPlanScreen( Screen ):
         Logger.info( 'Read: resp = {}'.format( resp ) )
 
     def read_success( self , req , resp ):
-        Logger.info( 'Read: successful read' )
+        Logger.info( 'Read: valid read request return' )
         ## Responses
         ## - { "message" : "" ,
         ##     "success" : true ,
@@ -291,10 +293,9 @@ class ReadPlanScreen( Screen ):
         ##       "partial":false,
         ##       "plan" : "..." } }
         resp_dict = json.loads( resp )
+        app = App.get_running_app()
         if( resp_dict[ 'success' ] ):
-            app = App.get_running_app()
-            ##plan_name = self.cleanPlanName( json_response[ 'plandata' ][ 'pseudo' ] ,
-            ##                                response.encoding )
+            Logger.info( 'Read: successful read' )
             app.root.ids.toolbar.title = resp_dict[ 'plandata' ][ 'username' ]
             self.update_flag_type( resp_dict[ 'plandata' ][ 'username' ] )
             ##last_login = self.adjustClock( json_response[ 'plandata' ][ 'last_login' ] )
@@ -310,6 +311,19 @@ class ReadPlanScreen( Screen ):
                                 None )
             ##plans_app.screens[ 3 ].ids.psuedo.text = plan_name
             ## and move the scrollview back to the top of the page
+        elif( app.demo_session_flag ):
+            Logger.info( 'Read: successful demo read' )
+            app.root.ids.toolbar.title = self.target_plan
+            self.update_flag_type( self.target_plan )
+            with open( os.path.join( 'demo' ,
+                                     ## TODO - use different demo plans to test
+                                     ##        different reading features
+                                     ##'{}.txt'.format( target_plan ) ) ,
+                                     '{}.txt'.format( 'plans' ) ) ,
+                       'r' ) as fp:
+                plan_body = fp.read()
+            self.cleanPlanBody( plan_body ,
+                                None )
         else:
             Logger.error( 'Read: {}'.format( resp_dict[ 'message' ] ) )
             return

@@ -33,7 +33,7 @@ source.dir = .
 source.include_exts = py,kv,png,ttf,atlas,fontd
 
 # (list) List of inclusions using pattern matching
-source.include_patterns = resources/*.ttf
+source.include_patterns = resources/*.ttf,demo/*.txt
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = spec
