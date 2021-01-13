@@ -3,59 +3,84 @@
         Rectangle:
             pos: self.pos
             size: self.size
-                                                                    
-    ## TODO:  add logo to bottom of screen
-    name: 'login'
-    title: 'Login'
-    FloatLayout:
-        size_hint: 1,1
-        MDLabel:
-            text: 'User Name'
-            size_hint: 0.25,0.1
-            pos_hint: {'center_x': (self.parent.width - 5 - 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width , 'top': (self.parent.height + 3*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
-        MDTextFieldRect:
+    id: login_screen
+    name: "login_screen"
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        ## spacer widget ##
+        Widget:
+            size_hint: None, None
+            height: dp( 10 )
+        ## spacer widget ##
+        Image:
+            size_hint_x: 0.8
+            pos_hint: { 'center_x': 0.5 }
+            source: 'resources/logo.png'
+        MDTextField:
             id: username
-            ## TODO - reconfigure to use rectangle mode of hint_text
-            ##hint_text: 'Username'
-            size_hint: 0.25,0.1
-            pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 3*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+            size_hint_x: 0.67
+            pos_hint: { 'center_x': 0.5 }
+            hint_text: 'Username   '
+            mode: "rectangle"
             multiline: False
-        MDLabel:
-            text: 'Password'
-            size_hint: 0.25,0.1
-            pos_hint: {'center_x': (self.parent.width - 5 - 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 2*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
-        MDTextFieldRect:
-            id: password
-            ##hint_text: 'Password'
-            password: True
-            size_hint: 0.25,0.1
-            pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 2*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
-            multiline: False
-        MDRectangleFlatButton:
-            markup: True
-            font_name: 'resources/fontawesome-webfont'
-            text: "{}".format( u'\uf090' )
-            size_hint: 0.5,0.1
-            pos_hint: {'center_x': 0.5 , 'top': (self.parent.height + 1*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
+        MDFloatLayout:
+            size_hint: 1,1
+            MDTextField:
+                id: password
+                size_hint_x: 0.67
+                pos_hint: { 'center_x': 0.5 , 'center_y': 0.5}
+                ##pos: self.pos
+                hint_text: 'Password   '
+                mode: "rectangle"
+                multiline: False
+                password: True
+            MDIconButton:
+                icon: "eye-off"
+                ripple_scale: .5
+                pos_hint: {"center_y": .5}
+                pos: password.pos[ 0 ] + password.width - self.width + dp( 8 ), 0
+                on_release:
+                    self.icon = "eye" if self.icon == "eye-off" else "eye-off"
+                    password.password = False if password.password is True else True
+        ## spacer widget ##
+        Widget:
+            size_hint: None, None
+            height: dp( 10 )
+        ## spacer widget ##
+        MDFillRoundFlatButton:
+            text: 'Login'
+            size_hint_x: 0.5
+            pos_hint: { 'center_x': 0.5 }
+            md_bg_color: 118/255 , 35/255 , 47/255 , 1
             on_press: root.logInTask( username.text , password.text )
+        ## spacer widget ##
+        Widget:
+            size_hint: None, None
+            height: dp( 10 )
+        ## spacer widget ##
         MDLabel:
-            markup: True
+            text: '[u][ref=https://grinnellplans.com/passwordreset.php]Forgot your password?[/ref][/u]'
             halign: 'center'
-            text: '[b]Version:[/b]  ' + root.version()
-            size_hint: 0.25,0.1
-            pos_hint: {'center_x': (self.parent.width - 5 - 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height - 0*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
-        MDRectangleFlatButton:
-            id: restore_session_button
-            disabled: True
+            height: self.texture_size[ 1 ]
+            pos_hint: { 'center_x': 0.5 }
             markup: True
-            text: "Restore"
-            ## TODO - align button widths with username/password fields
-            size_hint: 0.25,0.1
-            pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width , 'top': (self.parent.height - 0*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
-            on_press: root.restoreSessionTask()
-        ## TODO: add guest access
-        ## MDRectangleFlatButton:
-        ##     text: 'Guest'
-        ##     size_hint: 0.25,0.1
-        ##     pos_hint: {'center_x': (self.parent.width + 5 + 0.5*(self.parent.width*0.25) - (self.parent.width/2)) / self.parent.width, 'top': (self.parent.height + 1*(5 + self.parent.height*0.1) - (self.parent.height/2)) / self.parent.height }
-        ##     on_press: root.guestAuth( username.text , password.text )
+            on_ref_press: app.refLink( args[ 1 ] , 'https://grinnellplans.com/passwordreset.php' )
+        MDLabel:
+            text: '[ref=https://grinnellplans.com/register.php]Need a plan? [u]Register[/u][/ref]'
+            halign: 'center'
+            height: self.texture_size[ 1 ]
+            pos_hint: { 'center_x': 0.5 }
+            markup: True
+            on_ref_press: app.refLink( args[ 1 ] , 'https://grinnellplans.com/register.php' )
+        ## spacer widget ##
+        Widget:
+            size_hint: None, None
+            height: dp( 10 )
+        ## spacer widget ##
+        MDLabel:
+            text: '[b]Version:[/b]  ' + root.version()
+            pos_hint: { 'center_x' : 0.5 }
+            halign: 'right'
+            markup: True
+            padding: 20 , 0

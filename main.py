@@ -27,8 +27,7 @@ from kivymd.uix.label import MDLabel
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
 from kivy.utils import platform
-if( platform == 'linux' ):
-    ##Window.size = ( 600 , 350 )
+if( platform in [ 'linux' , 'macosx' ] ):
     Window.size = ( 350 , 600 )
 
 from kivy.properties import StringProperty, ObjectProperty, NumericProperty
@@ -82,7 +81,7 @@ class FingerDialog( BoxLayout ):
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '20.53.6'
+    __version__ = '21.01.4'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     navdrawer_height = NumericProperty( 0 )

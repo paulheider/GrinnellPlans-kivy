@@ -10,8 +10,6 @@ from kivy.uix.screenmanager import Screen
 from kivy.graphics import Color
 
 from kivymd.uix.label import MDLabel
-from kivymd.uix.button import MDRectangleFlatButton
-from kivymd.uix.textfield import MDTextFieldRect
 from kivymd.icon_definitions import md_icons
 
 from kivy.network.urlrequest import UrlRequest
@@ -76,7 +74,6 @@ class LoginScreen( Screen ):
         ##        in case the saved data is corrupted somehow? same for cookie_jar, defaults?
         app = App.get_running_app()
         if( os.path.exists( app.session_file ) ):
-            self.ids.restore_session_button.disabled = True
             os.remove( app.session_file )
 
 
@@ -91,10 +88,11 @@ class LoginScreen( Screen ):
             return
         app.username = username
         if( username == 'demo' ):
-            demo_password_file = os.path.join( 'demo' ,
-                                               'password.txt' )
-            with open( demo_password_file , 'r' ) as fp:
-                demo_password = fp.readline().strip()
+            #demo_password_file = os.path.join( 'demo' ,
+            #                                   'password.txt' )
+            #with open( demo_password_file , 'r' ) as fp:
+            #    demo_password = fp.readline().strip()
+            demo_password = 'helloworld'
             if( self.ids.password.text == demo_password ):
                 Logger.info( 'Login: successfully restored demo session' )
                 app.demo_session_flag = True
@@ -254,6 +252,4 @@ class LoginScreen( Screen ):
         app.session_file = os.path.join( app.user_data_dir ,
                                          'php_sess_id.txt' )
         if( os.path.exists( app.session_file ) ):
-            self.ids.restore_session_button.disabled = False
             Clock.schedule_once( self.restoreSessionTask , 0 )
-

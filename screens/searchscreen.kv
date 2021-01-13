@@ -3,18 +3,27 @@
         orientation: 'lr-tb'
         cols: 1
         halign: "center"
+        size_hint: 0.67, 1
+        pos_hint: { 'center_x': 0.5 }
         Widget:
             size_hint: None, None
-            height: app.notch_height + app.navdrawer_height
+            height: app.notch_height + app.navdrawer_height + dp( 40 )
         
-        MDTextFieldRect:
+        MDTextField:
             id: username
-            ## TODO - reconfigure to use rectangle mode of hint_text
-            size_hint: 0.8 , 0.2
+            hint_text: 'Username   '
+            mode: "rectangle"
+            size_hint: 0.67 , None
             multiline: False
-        MDRectangleFlatButton:
+        ## spacer widget ##
+        Widget:
+            size_hint: None, None
+            height: dp( 10 )
+        ## spacer widget ##
+        MDFillRoundFlatButton:
             id: search_username_button
-            markup: True
-            text: "Finger"
-            size_hint: 0.8 , 0.2
+            text: 'Finger'
+            size_hint: 0.67 , None
+            pos_hint: { 'center_x': 0.5 }
+            md_bg_color: [ 1 , 0.8 , .3 , .5 ]
             on_press: root.searchUsername()

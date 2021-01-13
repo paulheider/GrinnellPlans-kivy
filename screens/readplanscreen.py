@@ -315,13 +315,14 @@ class ReadPlanScreen( Screen ):
             Logger.info( 'Read: successful demo read' )
             app.root.ids.toolbar.title = self.target_plan
             self.update_flag_type( self.target_plan )
-            with open( os.path.join( 'demo' ,
-                                     ## TODO - use different demo plans to test
-                                     ##        different reading features
-                                     ##'{}.txt'.format( target_plan ) ) ,
-                                     '{}.txt'.format( 'plans' ) ) ,
-                       'r' ) as fp:
-                plan_body = fp.read()
+            #with open( os.path.join( 'demo' ,
+            #                         ## TODO - use different demo plans to test
+            #                         ##        different reading features
+            #                         ##'{}.txt'.format( target_plan ) ) ,
+            #                         '{}.txt'.format( 'plans' ) ) ,
+            #           'r' ) as fp:
+            #    plan_body = fp.read()
+            plan_body = 'Hello, world!'
             self.cleanPlanBody( plan_body ,
                                 None )
         else:
