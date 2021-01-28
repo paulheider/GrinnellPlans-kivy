@@ -22,6 +22,7 @@ class PlanItem( OneLineListItem ):
         Logger.info( 'Autofinger: reading {}'.format( self.username ) )
         app = App.get_running_app()
         app.root.ids.screen_manager.current = "read_plan_screen"
+        app.query_screen = 'flaggedplan'
         app.root.ids.read_plan_screen.readTask( self.username )
         app.flagged_plans.remove( self.username )
 

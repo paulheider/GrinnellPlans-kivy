@@ -23,6 +23,7 @@ class PlanItem( OneLineListItem ):
         app = App.get_running_app()
         app.pop()
         app.root.ids.screen_manager.current = "read_plan_screen"
+        app.query_screen = 'autofingerlist'
         app.root.ids.read_plan_screen.readTask( self.username )
 
 

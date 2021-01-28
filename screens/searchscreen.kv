@@ -27,3 +27,16 @@
             pos_hint: { 'center_x': 0.5 }
             md_bg_color: [ 1 , 0.8 , .3 , .5 ]
             on_press: root.searchUsername()
+        ## spacer widget ##
+        Widget:
+            size_hint: None, None
+            height: dp( 10 )
+        ## spacer widget ##
+        MDLabel:
+            id: error_label
+            name: 'error_label'
+            text: ''
+            halign: 'center'
+            size_hint: 0.67 , None
+            pos_hint: { 'center_x': 0.5 }
+            md_bg_color: [ 1 , 0.8 , .3 , .5 ]
