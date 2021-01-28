@@ -74,9 +74,13 @@ class SearchScreen( Screen ):
 
     def searchUsername( self ):
         Logger.info( 'Search: fingering user' )
+        ## If we had an error message from our last search, clear
+        ## it out.
+        self.ids.error_label.text = ''
         app = App.get_running_app()
         app.pop()
         username = app.root.ids.search_screen.ids.username.text
+        app.query_screen = 'search'
         app.root.ids.read_plan_screen.readTask( username )
         app.root.ids.screen_manager.current = "read_plan_screen"
         

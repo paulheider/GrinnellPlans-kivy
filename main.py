@@ -81,7 +81,7 @@ class FingerDialog( BoxLayout ):
 
 
 class GrinnellPlansApp( MDApp ):
-    __version__ = '21.01.4'
+    __version__ = '21.04.0'
 
     notch_height = NumericProperty( 0 ) # dp(25) if on new iphones
     navdrawer_height = NumericProperty( 0 )
@@ -106,7 +106,8 @@ class GrinnellPlansApp( MDApp ):
     progress_bar = ObjectProperty()
     loading_popup = ObjectProperty()
     loading_flag = False
-
+    query_screen = ""
+    
     about_popup = ObjectProperty()
     about_content = ObjectProperty()
     

@@ -141,6 +141,60 @@ class PlansHTMLParser( HTMLParser ):
 
 import webbrowser
 
+plans_plan = """
+Contact us at grinnellplans@gmail.com
+Plans got you confused? Check out [newbie].
+
+Want to get involved with Plans development? Join the <a href=\"https://groups.google.com/g/grinnellplans-development\" class=\"onplan\">GrinnellPlans Google Group</a>].
+"""
+gspelvin_plan = """
+The origins of <a href=\"https://www.grinnellplans.com\" class=\"onplan\">GrinnellPlans.com</a> lie in the <a href=\"https://tools.ietf.org/html/rfc1288\" class=\"onplan\">finger protocol</a>, which allowed users (on one machine) to query the contents of the .plan file on a (potentially different) machine.
+
+The original VAX computers at Grinnell supported this protocol, much to the enjoyment of the students and much to the chagrin of their paper deadlines.
+
+When the VAX was decommissioned in the late 90's, a user created a web-based replacement that maintained the simple text-format. This app reads from said website's API to increase reach.
+"""
+newbie_plan = """
+Welcome to Plans!
+
+By signing up for (and now receiving) your very own Grinnell Plan, you are joining a community made up of current Grinnellians, alumni, faculty, groups, projects, and organizations. Plans is a chance to mix with people you know, get an initial reading on people you don't know (ie- well-intentioned stalking), and build connections with Grinnell folks in all walks of life.
+
+The beauty of this community is in its simplicity. You will not find seizure-inspiring graphics, screeching music, friend-collecting contests, or mind-numbing contrast on any one user's plan. Instead, you'll be able to choose the style you like best, keep track of people you know in a way that is private and convenient for you (through autoread lists), and edit your own plan with graceful ease and no distraction (it's a text box. How could that get complicated?).
+
+Your plan is a place for your contact info, schedule, to-do list, aspirations, cynicisms, shoutouts, links, and ramblings. You can keep it relatively empty and put up only a few words that describe how you're currently feeling, or fill the whole thing with journal-style updates of your adventures obsessing over Harry Potter and memorizing every word to David Bowie's The Labyrinth. You can link to, reference, or chat with your friends and they can chat with you.
+"""
+nemo_plan = """
+THE YEAR 1866 was marked by a bizarre development, an unexplained and downright inexplicable phenomenon that surely no one has forgotten. Without getting into those rumors that upset civilians in the seaports and deranged the public mind even far inland, it must be said that professional seamen were especially alarmed. Traders, shipowners, captains of vessels, skippers, and master mariners from Europe and America, naval officers from every country, and at their heels the various national governments on these two continents, were all extremely disturbed by the business.
+
+In essence, over a period of time several ships had encountered “an enormous thing” at sea, a long spindle-shaped object, sometimes giving off a phosphorescent glow, infinitely bigger and faster than any whale.
+
+The relevant data on this apparition, as recorded in various logbooks, agreed pretty closely as to the structure of the object or creature in question, its unprecedented speed of movement, its startling locomotive power, and the unique vitality with which it seemed to be gifted. If it was a cetacean, it exceeded in bulk any whale previously classified by science. No naturalist, neither Cuvier nor Lacépède, neither Professor Dumeril nor Professor de Quatrefages, would have accepted the existence of such a monster sight unseen—specifically, unseen by their own scientific eyes.
+
+Striking an average of observations taken at different times—rejecting those timid estimates that gave the object a length of 200 feet, and ignoring those exaggerated views that saw it as a mile wide and three long—you could still assert that this phenomenal creature greatly exceeded the dimensions of anything then known to ichthyologists, if it existed at all.
+
+Now then, it did exist, this was an undeniable fact; and since the human mind dotes on objects of wonder, you can understand the worldwide excitement caused by this unearthly apparition. As for relegating it to the realm of fiction, that charge had to be dropped.
+
+In essence, on July 20, 1866, the steamer Governor Higginson, from the Calcutta & Burnach Steam Navigation Co., encountered this moving mass five miles off the eastern shores of Australia.
+
+Captain Baker at first thought he was in the presence of an unknown reef; he was even about to fix its exact position when two waterspouts shot out of this inexplicable object and sprang hissing into the air some 150 feet. So, unless this reef was subject to the intermittent eruptions of a geyser, the Governor Higginson had fair and honest dealings with some aquatic mammal, until then unknown, that could spurt from its blowholes waterspouts mixed with air and steam.
+
+Keep reading the riveting adventures of Captain Nemo on <a href=\"https://www.gutenberg.org/ebooks/2488\" class=\"onplan\">Project Gutenberg</a>...
+"""
+kaplan_plan = """
+09:15 - Ate some d. oatmeal
+10:42 - Quick poll
+12:34 - Updated todone list, tiny dragons
+
+Public accountability list:
+[x] read paper #1
+[/] read paper #2
+[ ] send emails
+
+"""
+harvey_plan = """
+Rabbit, rabbit!
+"""
+
 class PlanChunk( MDLabel ):
 
     def __init__(self, **kwargs):
@@ -153,6 +207,7 @@ class PlanChunk( MDLabel ):
         app.pop()
         if( link.startswith( 'read.php?searchname=' ) ):
             relative_url , plan_name = link.split( '=' )
+            app.query_screen = 'readplans'
             app.root.ids.read_plan_screen.readTask( plan_name )
         else:
             webbrowser.open( link )
@@ -198,6 +253,7 @@ class ReadPlanScreen( Screen ):
         ##    fp.write( '{}\n'.format( self.plans_parser.plan_buffer ) )
         sections = self.plans_parser.plan_buffer.split( '[hr]' )
         plan_body.clear_widgets()
+        self.ids.body_scrollview.scroll_y = 1
         for section in sections:
             section_size =  len( section )
             Logger.info( 'Read: section size {}'.format( section_size ) )
@@ -322,9 +378,31 @@ class ReadPlanScreen( Screen ):
             #                         '{}.txt'.format( 'plans' ) ) ,
             #           'r' ) as fp:
             #    plan_body = fp.read()
-            plan_body = 'Hello, world!'
+            if( self.target_plan == 'plans' ):
+                plan_body = plans_plan
+            elif( self.target_plan == 'gspelvin' ):
+                plan_body = gspelvin_plan
+            elif( self.target_plan == 'newbie' ):
+                plan_body = newbie_plan
+            elif( self.target_plan == 'nemo' ):
+                plan_body = nemo_plan
+            elif( self.target_plan == 'kaplan' ):
+                plan_body = kaplan_plan
+            elif( self.target_plan == 'harvey' ):
+                plan_body = harvey_plan
+            else:
+                plan_body = "Hello, world.  This is actually a dummy plan.  I'm surprised you were able to make it here."
             self.cleanPlanBody( plan_body ,
                                 None )
+        elif( resp_dict[ 'message' ] == 'invalid user name' ):
+            app = App.get_running_app()
+            app.done_loading()
+            Logger.error( 'Read: {}'.format( resp_dict[ 'message' ] ) )
+            if( app.query_screen == 'search' ):
+                app.root.ids.search_screen.ids.error_label.text = 'Invalid user name'
+                app.root.ids.screen_manager.current = "search_screen"
+            ## Clear out the bread crumb from this most recent query
+            app.query_screen = ''
         else:
             Logger.error( 'Read: {}'.format( resp_dict[ 'message' ] ) )
             return
